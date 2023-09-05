@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SalesforceFormElement from '@/components/SalesforceFormElement.vue'
 import type { Form, FormElements, FormKey } from '@/types/form'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const elements: FormElements = [
   {
@@ -39,8 +39,8 @@ const elements: FormElements = [
     selector: 'select',
     data: [
       { index: 0, value: 'Application' },
-      { index: 1, value: 'Help Desk' },
-      { index: 2, value: 'Human Resource' },
+      { index: 1, value: 'Help_Desk' },
+      { index: 2, value: 'Human_Resource' },
       { index: 3, value: 'Networking' },
       { index: 4, value: 'Security' }
     ]
@@ -57,11 +57,11 @@ const elements: FormElements = [
       { index: 4, value: 'Application - Modifica portale', sector: 'Application' },
       { index: 5, value: 'Application - Nuova campagna', sector: 'Application' },
       { index: 6, value: 'Application - Nuova campagna', sector: 'Application' },
-      { index: 7, value: 'Help Desk - Nuove utente', sector: 'Help Desk' },
-      { index: 8, value: 'Help Desk - Postazione', sector: 'Help Desk' },
-      { index: 9, value: 'Help Desk - Verifica applicativo', sector: 'Help Desk' },
-      { index: 10, value: 'Human Resource - Disattivazione utente', sector: 'Human Resource' },
-      { index: 11, value: 'Human Resource - Estrazione ore', sector: 'Human Resource' },
+      { index: 7, value: 'Help Desk - Nuove utente', sector: 'Help_Desk' },
+      { index: 8, value: 'Help Desk - Postazione', sector: 'Help_Desk' },
+      { index: 9, value: 'Help Desk - Verifica applicativo', sector: 'Help_Desk' },
+      { index: 10, value: 'Human Resource - Disattivazione utente', sector: 'Human_Resource' },
+      { index: 11, value: 'Human Resource - Estrazione ore', sector: 'Human_Resource' },
       { index: 12, value: 'Networking - Connettività', sector: 'Networking' },
       { index: 13, value: 'Networking - Verifica server', sector: 'Networking' },
       { index: 14, value: 'Security - Audit client', sector: 'Security' }
@@ -91,7 +91,10 @@ const form = ref<Form>({
   priority: ''
 })
 
-const handleChange = (value: string, key: string) => (form.value[key as FormKey] = value)
+const handleChange = (value: string, key: string) => {
+  if (key === 'sector') form.value.category = ''
+  form.value[key as FormKey] = value
+}
 
 const handleClick = () => {
   // TODO: POST request with form value to salesforce API endpoint.
@@ -100,15 +103,28 @@ const handleClick = () => {
 </script>
 
 <template>
-  <SalesforceFormElement
-    v-for="element of elements"
-    :sector="form.sector"
-    :element="element"
-    :key="element.id"
-    :model="form[element.id as FormKey]"
-    @change="handleChange($event, element.id)"
-  />
-  <button type="submit" @click="handleClick">Invia</button>
+  <div class="container">
+    <SalesforceFormElement
+      v-for="element of elements"
+      class="form-element"
+      :element="element"
+      :key="element.id"
+      :model="form[element.id as FormKey]"
+      :sector="form.sector"
+      @change="handleChange($event, element.id)"
+    />
+    <sl-button type="submit" variant="success" size="medium" @click="handleClick">Invia</sl-button>
+  </div>
+  <pre>{{ form }}</pre>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.container {
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+.form-element {
+  margin-bottom: 16px;
+}
+</style>
