@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import SalesforceForm from '@/components/SalesforceForm.vue'
+</script>
 
-<template><div></div></template>
+<template><SalesforceForm /></template>
 
 <style scoped lang="scss"></style>
