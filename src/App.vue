@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import SalesforceForm from '@/components/SalesforceForm.vue'
+import SalesforceForm from '@/components/TheForm.vue'
+import { store } from '@/store'
 </script>
 
-<template><SalesforceForm /></template>
+<template>
+  <main>
+    <SalesforceForm :form="store.form" />
+  </main>
+</template>
 
-<style scoped lang="scss"></style>
+<style scoped>
+main {
+  height: 100%;
+  padding: 1.5rem 5rem;
+}
+</style>

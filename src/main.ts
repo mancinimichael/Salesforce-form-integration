@@ -1,9 +1,11 @@
-import App from '@/App.vue'
-import '@/styles/base.scss'
 import { setBasePath } from '@shoelace-style/shoelace'
 import '@shoelace-style/shoelace/dist/themes/light.css'
 import { createApp } from 'vue'
+import App from '@/App.vue'
+import '@/assets/base.css'
 
-setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.8.0/cdn/')
+setBasePath('/node_modules/@shoelace-style/shoelace/cdn')
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.mount('#app')
