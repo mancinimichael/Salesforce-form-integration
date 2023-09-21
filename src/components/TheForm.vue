@@ -176,23 +176,3 @@ const handleSubmit = async () => {
     </form>
   </div>
 </template>
-
-<style scoped>
-sl-button {
-  width: 100%;
-}
-.container {
-  margin: 0 auto;
-  max-width: 50rem;
-}
-
-.container .row {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.container .row .col {
-  flex: 1 0 auto;
-}
-</style>

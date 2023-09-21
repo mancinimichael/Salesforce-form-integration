@@ -8,10 +8,3 @@ import { store } from '@/store'
     <TheForm :form="store.form" />
   </main>
 </template>
-
-<style scoped>
-main {
-  height: 100%;
-  padding: 1.5rem 5rem;
-}
-</style>

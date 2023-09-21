@@ -65,13 +65,3 @@ const filter = (item: FormItem, option: Option) => {
     </sl-select>
   </div>
 </template>
-
-<style scoped>
-.wrapper {
-  margin-bottom: 1.5rem;
-}
-
-.wrapper:last-child {
-  margin-bottom: 0;
-}
-</style>

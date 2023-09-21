@@ -13,3 +13,31 @@ body,
 #app {
   height: 100vh;
 }
+
+main {
+  height: 100%;
+  padding: 1.5rem 5rem;
+}
+
+sl-button {
+  width: 100%;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 50rem;
+}
+
+.container .row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.container .row .col {
+  flex: 1 0 auto;
+}
+
+.wrapper {
+  margin-bottom: 1.5rem;
+}
