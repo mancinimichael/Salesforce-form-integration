@@ -34,6 +34,10 @@ export const TIPOLOGY_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/
 
 export const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID
 
+export const OAUTH_CODE = import.meta.env.VITE_OAUTH_CODE
+
+export const OAUTH_SCOPE = import.meta.env.VITE_OAUTH_SCOPE
+
 export const OAUTH_REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI
 
 //#endregion
