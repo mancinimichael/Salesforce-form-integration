@@ -8,6 +8,7 @@ type StoreMethods = {
 
 type StoreParams = {
   form: Form
+  bearer?: string
 }
 
 type Store = StoreMethods & StoreParams
@@ -15,10 +16,11 @@ type Store = StoreMethods & StoreParams
 export const store = reactive<Store>({
   form: {
     category: '',
-    contact: '',
+    contact: 'Michael Mancini',
+    contactId: '',
     description: '',
-    email: '',
-    phone: '',
+    email: 'michael.mancini@covisian.com',
+    phone: '+39 345 7781791',
     priority: '',
     sector: '',
     subject: '',
@@ -28,6 +30,12 @@ export const store = reactive<Store>({
     Object.keys(this.form).forEach((key) => this.updateForm(key as FormKey, ''))
   },
   updateForm(key: FormKey, value: string) {
+    if (key === 'sector') {
+      this.form.category = ''
+      this.form.priority = ''
+      this.form.tipology = ''
+    }
+
     this.form[key] = value
   }
 })

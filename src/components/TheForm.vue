@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import FormItem from '@/components/FormItem.vue'
-import { API_ENDPOINT, BEARER } from '@/constants'
-import type { Form, FormItems } from '@/types'
+import { CASE_ENDPOINT, CATEGORY_ENDPOINT, SECTOR_ENDPOINT, TIPOLOGY_ENDPOINT } from '@/constants'
+import { store } from '@/store'
+import type { ApiResponse, FormItems, TheFormProps, Values } from '@/types'
+import axios from 'axios'
 import { onMounted, ref } from 'vue'
 
-type SalesforceFormProps = { form: Form }
-
-const { form } = defineProps<SalesforceFormProps>()
+const { form } = defineProps<TheFormProps>()
 
 const elements = ref<FormItems>([
   {
@@ -37,8 +37,8 @@ const elements = ref<FormItems>([
     type: 'text'
   },
   {
-    id: 'sparta',
-    label: 'ID Sparta',
+    id: 'contactId',
+    label: 'ID Contatto',
     selector: 'input',
     type: 'text'
   },
@@ -79,46 +79,67 @@ const elements = ref<FormItems>([
 ])
 
 onMounted(async () => {
-  const CATEGORY_ENDPOINT = `${API_ENDPOINT}/Category__c`
-  const SECTOR_ENDPOINT = `${API_ENDPOINT}/Sector__c`
-  const TIPOLOGY_ENDPOINT = `${API_ENDPOINT}/Tipology__c`
-
   const headers = {
-    Authorization: `Bearer ${BEARER}`
+    Authorization: `Bearer ${store.bearer}`
   }
 
-  const categoryRequest = fetch(CATEGORY_ENDPOINT, { headers })
-  const sectorRequest = fetch(SECTOR_ENDPOINT, { headers })
-  const tipologyRequest = fetch(TIPOLOGY_ENDPOINT, { headers })
+  await Promise.all([
+    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers }),
+    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers }),
+    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers })
+  ])
+    .then<Values[]>((res) => res.map((r) => r.data.values))
+    .then(([categories, sectors, tipologies]) => {
+      categories.forEach((category, index) => {
+        elements.value
+          .find((element) => element.id === 'category')
+          ?.options?.push({ id: index, value: category.value, sectorId: `${category.validFor[0]}` })
+      })
 
-  const res = await Promise.all([categoryRequest, sectorRequest, tipologyRequest])
-  const data = await Promise.all<{ values: Array<{ value: string; validFor: Array<number> }> }>(
-    res.map((r) => r.json())
-  )
+      sectors.forEach((sector, index) => {
+        elements.value
+          .find((element) => element.id === 'sector')
+          ?.options?.push({ id: index, value: sector.value })
+      })
 
-  const [category, sector, tipology] = data
-
-  category.values.forEach((value, index) => {
-    elements.value
-      .find((element) => element.id === 'category')
-      ?.options?.push({ id: index, value: value.value, sectorId: `${value.validFor[0]}` })
-  })
-
-  sector.values.forEach((value, index) => {
-    elements.value
-      .find((element) => element.id === 'sector')
-      ?.options?.push({ id: index, value: value.value })
-  })
-
-  tipology.values.forEach((value, index) => {
-    elements.value
-      .find((element) => element.id === 'tipology')
-      ?.options?.push({ id: index, value: value.value, sectorId: `${value.validFor[0]}` })
-  })
+      tipologies.forEach((tipology, index) => {
+        elements.value
+          .find((element) => element.id === 'tipology')
+          ?.options?.push({ id: index, value: tipology.value, sectorId: `${tipology.validFor[0]}` })
+      })
+    })
 })
 
-const handleSubmit = () => {
-  console.log(form)
+const handleSubmit = async () => {
+  if (!Object.values(form).every((value) => !!value)) return
+
+  const headers = {
+    Authorization: `Bearer ${store.bearer}`
+  }
+
+  const body = {
+    SuppliedName: form.contact,
+    SuppliedEmail: form.email,
+    SuppliedPhone: form.phone,
+    Contact_Key__c: form.contactId,
+    Subject: form.subject,
+    Description: form.description,
+    Priority: elements.value
+      .find((element) => element.id === 'priority')
+      ?.options?.find((option) => option.id === parseInt(form.priority))?.value,
+    Sector__c: elements.value
+      .find((element) => element.id === 'sector')
+      ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
+    Tipology__c: elements.value
+      .find((element) => element.id === 'tipology')
+      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
+    Category__c: elements.value
+      .find((element) => element.id === 'category')
+      ?.options?.find((option) => option.id === parseInt(form.category))?.value,
+    Origin: 'Smart'
+  }
+
+  await axios.post(CASE_ENDPOINT, body, { headers }).catch(console.error)
 }
 </script>
 

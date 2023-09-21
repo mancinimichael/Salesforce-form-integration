@@ -1,12 +1,30 @@
+//#region API
+
+export type ApiResponse = { values: Values }
+
+export type OauthApiResponse = { accessToken: string; tokenType: string }
+
+type Value = {
+  label: string
+  validFor: number[]
+  value: string
+}
+
+export type Values = Value[]
+
+//#endregion
+
+//#region FORM
+
 export type Form = {
   category: string
   contact: string
+  contactId: string
   description: string
   email: string
   phone: string
   priority: string
   sector: string
-  sparta: string
   subject: string
   tipology: string
 }
@@ -24,10 +42,23 @@ export type FormItems = FormItem[]
 
 export type FormKey = keyof Form
 
-type Option = {
+export type Option = {
   id: number
   value: string
   sectorId?: string
 }
 
 type Options = Option[]
+
+//#endregion
+
+//#region PROPS
+
+export type FormItemProps = {
+  disabled?: boolean
+  item: FormItem
+}
+
+export type TheFormProps = { form: Form }
+
+//#endregion

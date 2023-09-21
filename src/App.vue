@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import SalesforceForm from '@/components/TheForm.vue'
+import TheForm from '@/components/TheForm.vue'
 import { store } from '@/store'
 </script>
 
 <template>
   <main>
-    <SalesforceForm :form="store.form" />
+    <TheForm :form="store.form" />
   </main>
 </template>
 

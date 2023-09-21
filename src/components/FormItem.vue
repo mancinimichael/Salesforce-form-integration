@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { store } from '@/store'
-import type { FormItem } from '@/types'
-
-type FormItemProps = {
-  disabled?: boolean
-  item: FormItem
-}
+import type { FormItem, FormItemProps, Option } from '@/types'
 
 const { disabled, item } = defineProps<FormItemProps>()
+
+const filter = (item: FormItem, option: Option) => {
+  if (item.id === 'tipology') return option.sectorId === store.form.sector
+
+  if (item.id === 'category') return option.sectorId === store.form.tipology
+
+  return true
+}
 </script>
 
 <template>
@@ -43,19 +46,17 @@ const { disabled, item } = defineProps<FormItemProps>()
     <sl-select
       v-if="item.selector === 'option'"
       filled
-      required
       :disabled="
         ['category', 'tipology'].includes(item.id) &&
         (!store.form.sector ||
           !item.options?.filter((option) => option.sectorId === store.form.sector).length)
       "
       :label="item.label"
+      :required="item.id !== 'tipology'"
       @sl-input="store.updateForm(item.id, $event.target.value)"
     >
       <sl-option
-        v-for="option of item.options?.filter((option) =>
-          ['category', 'tipology'].includes(item.id) ? option?.sectorId === store.form.sector : true
-        )"
+        v-for="option of item.options?.filter((option) => filter(item, option))"
         :key="option.id"
         :value="option.id"
       >
