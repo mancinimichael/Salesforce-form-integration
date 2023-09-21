@@ -49,9 +49,9 @@ const filter = (item: FormItem, option: Option) => {
     <sl-select
       v-if="item.selector === 'option'"
       filled
+      required
       :disabled="disabled(item)"
       :label="item.label"
-      :required="item.id !== 'tipology'"
       @sl-input="store.updateForm(item.id, $event.target.value)"
     >
       <sl-option

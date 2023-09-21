@@ -132,19 +132,16 @@ const handleSubmit = async () => {
       .find((element) => element.id === 'sector')
       ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
     Subject: form.subject,
-    // SuppliedEmail: form.email,
-    // SuppliedName: form.contact,
-    // SuppliedPhone: form.phone,
     Tipology__c: elements.value
       .find((element) => element.id === 'tipology')
       ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
 
-    // Values obtained from cookie
-    SuppliedEmail: '',
-    SuppliedName: '',
-    SuppliedPhone: '',
-    Web_Team__c: '',
-    Web_Site__c: ''
+    // Values obtained from OAuth2
+    SuppliedEmail: store.form.email,
+    SuppliedName: store.form.contact,
+    SuppliedPhone: store.form.phone,
+    Web_Team__c: store.form.team,
+    Web_Site__c: store.form.site
   }
 
   await axios.post(CASE_ENDPOINT, body, { headers }).catch(console.error)

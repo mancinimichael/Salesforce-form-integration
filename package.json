@@ -14,7 +14,9 @@
   "dependencies": {
     "@shoelace-style/shoelace": "^2.8.0",
     "axios": "^1.5.0",
+    "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
+    "qs": "^6.11.2",
     "vue": "^3.3.4"
   },
   "devDependencies": {
@@ -22,6 +24,7 @@
     "@tsconfig/node18": "^18.2.0",
     "@types/lodash": "^4.14.198",
     "@types/node": "^18.17.5",
+    "@types/qs": "^6.9.8",
     "@vitejs/plugin-vue": "^4.3.1",
     "@vue/eslint-config-prettier": "^8.0.0",
     "@vue/eslint-config-typescript": "^11.0.3",

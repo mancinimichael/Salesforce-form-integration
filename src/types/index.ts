@@ -2,7 +2,11 @@
 
 export type ApiResponse = { values: Values }
 
-export type OauthApiResponse = { access_token: string; token_type: string }
+export type OauthApiResponse = {
+  access_token: string
+  id_token?: string
+  token_type: string
+}
 
 type Value = {
   label: string
@@ -19,11 +23,16 @@ export type Values = Value[]
 export type Form = {
   application: string
   category: string
+  contact: string
   contactId: string
   description: string
+  email: string
+  phone: string
   priority: string
   sector: string
+  site: string
   subject: string
+  team: string
   tipology: string
 }
 

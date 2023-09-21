@@ -29,3 +29,11 @@ export const SECTOR_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/Ca
 export const TIPOLOGY_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/Case/picklist-values/012000000000000AAA/Tipology__c`
 
 //#endregion
+
+//#region OAUTH
+
+export const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID
+
+export const OAUTH_REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI
+
+//#endregion

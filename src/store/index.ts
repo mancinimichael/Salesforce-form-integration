@@ -5,11 +5,16 @@ export const store = reactive<Store>({
   form: {
     application: '',
     category: '',
+    contact: '',
     contactId: '',
     description: '',
+    email: '',
+    phone: '',
     priority: '',
     sector: '',
+    site: '',
     subject: '',
+    team: '',
     tipology: ''
   },
   resetForm() {
