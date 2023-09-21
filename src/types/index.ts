@@ -19,11 +19,8 @@ export type Values = Value[]
 export type Form = {
   application: string
   category: string
-  contact: string
   contactId: string
   description: string
-  email: string
-  phone: string
   priority: string
   sector: string
   subject: string
@@ -56,10 +53,25 @@ type Options = Option[]
 //#region PROPS
 
 export type FormItemProps = {
-  disabled?: boolean
   item: FormItem
 }
 
 export type TheFormProps = { form: Form }
+
+//#endregion
+
+//#region STORE
+
+type StoreMethods = {
+  resetForm(): void
+  updateForm(key: FormKey, value: string): void
+}
+
+type StoreParams = {
+  form: Form
+  bearer?: string
+}
+
+export type Store = StoreMethods & StoreParams
 
 //#endregion

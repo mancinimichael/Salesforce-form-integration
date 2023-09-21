@@ -16,27 +16,6 @@ const { form } = defineProps<TheFormProps>()
 
 const elements = ref<FormItems>([
   {
-    id: 'contact',
-    label: 'Contatto',
-    selector: 'input',
-    type: 'text',
-    value: 'Michael Mancini'
-  },
-  {
-    id: 'email',
-    label: 'Email',
-    selector: 'input',
-    type: 'email',
-    value: 'michael.mancini@covisian.com'
-  },
-  {
-    id: 'phone',
-    label: 'Telefono',
-    selector: 'input',
-    type: 'text',
-    value: '+39 345 7781791'
-  },
-  {
     id: 'subject',
     label: 'Oggetto',
     selector: 'input',
@@ -66,6 +45,17 @@ const elements = ref<FormItems>([
     options: []
   },
   {
+    id: 'priority',
+    label: 'Priorità',
+    selector: 'option',
+    options: [
+      { id: 0, value: 'Low' },
+      { id: 1, value: 'Medium' },
+      { id: 2, value: 'High' },
+      { id: 3, value: 'Critical' }
+    ]
+  },
+  {
     id: 'tipology',
     label: 'Tipologia',
     selector: 'option',
@@ -76,17 +66,6 @@ const elements = ref<FormItems>([
     label: 'Categoria',
     selector: 'option',
     options: []
-  },
-  {
-    id: 'priority',
-    label: 'Priorità',
-    selector: 'option',
-    options: [
-      { id: 0, value: 'Low' },
-      { id: 1, value: 'Medium' },
-      { id: 2, value: 'High' },
-      { id: 3, value: 'Critical' }
-    ]
   }
 ])
 
@@ -153,12 +132,19 @@ const handleSubmit = async () => {
       .find((element) => element.id === 'sector')
       ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
     Subject: form.subject,
-    SuppliedEmail: form.email,
-    SuppliedName: form.contact,
-    SuppliedPhone: form.phone,
+    // SuppliedEmail: form.email,
+    // SuppliedName: form.contact,
+    // SuppliedPhone: form.phone,
     Tipology__c: elements.value
       .find((element) => element.id === 'tipology')
-      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value
+      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
+
+    // Values obtained from cookie
+    SuppliedEmail: '',
+    SuppliedName: '',
+    SuppliedPhone: '',
+    Web_Team__c: '',
+    Web_Site__c: ''
   }
 
   await axios.post(CASE_ENDPOINT, body, { headers }).catch(console.error)
@@ -169,28 +155,26 @@ const handleSubmit = async () => {
   <div class="container">
     <form @submit.prevent="handleSubmit">
       <div class="row">
-        <div v-for="element of elements.slice(0, 3)" class="col" :key="element.id">
-          <FormItem :disabled="true" :item="element" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div v-for="element of elements.slice(3, 5)" class="col" :key="element.id">
+        <div v-for="element of elements.slice(0, 2)" class="col" :key="element.id">
           <FormItem :item="element" />
         </div>
       </div>
 
-      <FormItem v-for="element of elements.slice(5, 6)" :item="element" :key="element.id" />
-
       <div class="row">
-        <div v-for="element of elements.slice(6, 9)" class="col" :key="element.id">
-          <FormItem :disabled="true" :item="element" />
+        <div v-for="element of elements.slice(2, 3)" class="col" :key="element.id">
+          <FormItem :item="element" />
         </div>
       </div>
 
       <div class="row">
-        <div v-for="element of elements.slice(9, 11)" class="col" :key="element.id">
-          <FormItem :disabled="true" :item="element" />
+        <div v-for="element of elements.slice(3, 6)" class="col" :key="element.id">
+          <FormItem :item="element" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div v-for="element of elements.slice(6, 8)" class="col" :key="element.id">
+          <FormItem :item="element" />
         </div>
       </div>
 

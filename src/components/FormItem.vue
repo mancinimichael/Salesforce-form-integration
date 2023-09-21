@@ -2,30 +2,33 @@
 import { store } from '@/store'
 import type { FormItem, FormItemProps, Option } from '@/types'
 
-const { disabled, item } = defineProps<FormItemProps>()
+const { item } = defineProps<FormItemProps>()
+
+const disabled = (item: FormItem) => {
+  return (
+    (item.id === 'tipology' &&
+      !store.form.sector &&
+      !item.options?.filter((option) => option.sectorId === store.form.sector).length) ||
+    (item.id === 'category' &&
+      !store.form.tipology &&
+      !item.options?.filter((option) => option.sectorId === store.form.tipology).length)
+  )
+}
 
 const filter = (item: FormItem, option: Option) => {
-  if (item.id === 'tipology') return option.sectorId === store.form.sector
+  if (!['category', 'tipology'].includes(item.id)) return true
 
-  if (item.id === 'category') return option.sectorId === store.form.tipology
-
-  return true
+  return (
+    (item.id === 'tipology' && option.sectorId === store.form.sector) ||
+    (item.id === 'category' && option.sectorId === store.form.tipology)
+  )
 }
 </script>
 
 <template>
   <div class="wrapper">
     <sl-input
-      v-if="item.selector === 'input' && disabled"
-      filled
-      :disabled="disabled"
-      :label="item.label"
-      :type="item.type"
-      :value="item.value"
-    ></sl-input>
-
-    <sl-input
-      v-if="item.selector === 'input' && !disabled"
+      v-if="item.selector === 'input'"
       v-model="store.form[item.id]"
       filled
       required
@@ -46,11 +49,7 @@ const filter = (item: FormItem, option: Option) => {
     <sl-select
       v-if="item.selector === 'option'"
       filled
-      :disabled="
-        ['category', 'tipology'].includes(item.id) &&
-        (!store.form.sector ||
-          !item.options?.filter((option) => option.sectorId === store.form.sector).length)
-      "
+      :disabled="disabled(item)"
       :label="item.label"
       :required="item.id !== 'tipology'"
       @sl-input="store.updateForm(item.id, $event.target.value)"
