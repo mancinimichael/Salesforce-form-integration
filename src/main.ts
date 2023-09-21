@@ -9,29 +9,26 @@ import {
   USERNAME
 } from '@/constants'
 import { store } from '@/store'
+import type { OauthApiResponse } from '@/types'
 import { setBasePath } from '@shoelace-style/shoelace'
 import '@shoelace-style/shoelace/dist/themes/light.css'
 import axios from 'axios'
 import { createApp } from 'vue'
-import type { OauthApiResponse } from './types'
 
 const initializeApp = async () => {
-  await axios
-    .post<OauthApiResponse>(OAUTH_ENDPOINT, {
-      grant_type: GRANT_TYPE,
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      username: USERNAME,
-      password: PASSWORD
-    })
-    .then((res) => res.data)
-    .then((res) => {
-      store.bearer = `${res.tokenType} ${res.accessToken}`
-    })
-    .catch(console.error)
+  const formData = new FormData()
 
-  store.bearer =
-    '00D7Q00000CItjk!ARIAQF7oZVLwMRVz5UOWPEUg7kvg6Bqq7f45pzhvLreEZA6t8jIqbEGereM.wL.1tX5p5JP96.971Wjf2Wz_T4.Hc6mzP1yk'
+  formData.append('grant_type', GRANT_TYPE)
+  formData.append('client_id', CLIENT_ID)
+  formData.append('client_secret', CLIENT_SECRET)
+  formData.append('username', USERNAME)
+  formData.append('password', PASSWORD)
+
+  await axios
+    .post<OauthApiResponse>(OAUTH_ENDPOINT, formData)
+    .then((res) => res.data)
+    .then((res) => (store.bearer = `${res.token_type} ${res.access_token}`))
+    .catch(console.error)
 }
 
 await initializeApp().then(() => {

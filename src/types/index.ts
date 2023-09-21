@@ -2,7 +2,7 @@
 
 export type ApiResponse = { values: Values }
 
-export type OauthApiResponse = { accessToken: string; tokenType: string }
+export type OauthApiResponse = { access_token: string; token_type: string }
 
 type Value = {
   label: string
@@ -17,6 +17,7 @@ export type Values = Value[]
 //#region FORM
 
 export type Form = {
+  application: string
   category: string
   contact: string
   contactId: string

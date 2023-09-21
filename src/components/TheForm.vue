@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import FormItem from '@/components/FormItem.vue'
-import { CASE_ENDPOINT, CATEGORY_ENDPOINT, SECTOR_ENDPOINT, TIPOLOGY_ENDPOINT } from '@/constants'
+import {
+  APPLICATION_ENDPOINT,
+  CASE_ENDPOINT,
+  CATEGORY_ENDPOINT,
+  SECTOR_ENDPOINT,
+  TIPOLOGY_ENDPOINT
+} from '@/constants'
 import { store } from '@/store'
 import type { ApiResponse, FormItems, TheFormProps, Values } from '@/types'
 import axios from 'axios'
@@ -48,6 +54,12 @@ const elements = ref<FormItems>([
     selector: 'textarea'
   },
   {
+    id: 'application',
+    label: 'Applicazione',
+    selector: 'option',
+    options: []
+  },
+  {
     id: 'sector',
     label: 'Sezione',
     selector: 'option',
@@ -80,16 +92,23 @@ const elements = ref<FormItems>([
 
 onMounted(async () => {
   const headers = {
-    Authorization: `Bearer ${store.bearer}`
+    Authorization: `${store.bearer}`
   }
 
   await Promise.all([
+    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers }),
     axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers }),
     axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers }),
     axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers })
   ])
     .then<Values[]>((res) => res.map((r) => r.data.values))
-    .then(([categories, sectors, tipologies]) => {
+    .then(([applications, categories, sectors, tipologies]) => {
+      applications.forEach((application, index) => {
+        elements.value
+          .find((element) => element.id === 'application')
+          ?.options?.push({ id: index, value: application.value })
+      })
+
       categories.forEach((category, index) => {
         elements.value
           .find((element) => element.id === 'category')
@@ -114,29 +133,32 @@ const handleSubmit = async () => {
   if (!Object.values(form).every((value) => !!value)) return
 
   const headers = {
-    Authorization: `Bearer ${store.bearer}`
+    Authorization: `${store.bearer}`
   }
 
   const body = {
-    SuppliedName: form.contact,
-    SuppliedEmail: form.email,
-    SuppliedPhone: form.phone,
+    Application__c: elements.value
+      .find((element) => element.id === 'application')
+      ?.options?.find((option) => option.id === parseInt(form.application))?.value,
+    Category__c: elements.value
+      .find((element) => element.id === 'category')
+      ?.options?.find((option) => option.id === parseInt(form.category))?.value,
     Contact_Key__c: form.contactId,
-    Subject: form.subject,
     Description: form.description,
+    Origin: 'Smart',
     Priority: elements.value
       .find((element) => element.id === 'priority')
       ?.options?.find((option) => option.id === parseInt(form.priority))?.value,
     Sector__c: elements.value
       .find((element) => element.id === 'sector')
       ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
+    Subject: form.subject,
+    SuppliedEmail: form.email,
+    SuppliedName: form.contact,
+    SuppliedPhone: form.phone,
     Tipology__c: elements.value
       .find((element) => element.id === 'tipology')
-      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
-    Category__c: elements.value
-      .find((element) => element.id === 'category')
-      ?.options?.find((option) => option.id === parseInt(form.category))?.value,
-    Origin: 'Smart'
+      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value
   }
 
   await axios.post(CASE_ENDPOINT, body, { headers }).catch(console.error)
@@ -161,13 +183,13 @@ const handleSubmit = async () => {
       <FormItem v-for="element of elements.slice(5, 6)" :item="element" :key="element.id" />
 
       <div class="row">
-        <div v-for="element of elements.slice(6, 8)" class="col" :key="element.id">
+        <div v-for="element of elements.slice(6, 9)" class="col" :key="element.id">
           <FormItem :disabled="true" :item="element" />
         </div>
       </div>
 
       <div class="row">
-        <div v-for="element of elements.slice(8, 10)" class="col" :key="element.id">
+        <div v-for="element of elements.slice(9, 11)" class="col" :key="element.id">
           <FormItem :disabled="true" :item="element" />
         </div>
       </div>
