@@ -14,6 +14,8 @@ import { onMounted, ref } from 'vue'
 
 const { form } = defineProps<TheFormProps>()
 
+const fileList = ref<FileList | null>(null)
+
 const elements = ref<FormItems>([
   {
     id: 'subject',
@@ -108,6 +110,11 @@ onMounted(async () => {
     })
 })
 
+const handleChange = (event: Event) => {
+  const { files } = event.target as HTMLInputElement
+  fileList.value = files
+}
+
 const handleSubmit = async () => {
   if (!Object.values(form).every((value) => !!value)) return
 
@@ -144,7 +151,32 @@ const handleSubmit = async () => {
     Web_Site__c: store.form.site
   }
 
-  await axios.post(CASE_ENDPOINT, body, { headers }).catch(console.error)
+  const id = await axios
+    .post<{ id: string }>(CASE_ENDPOINT, body, { headers })
+    .then((res) => res.data.id)
+    .catch(console.error)
+
+  if (fileList.value?.length === 0) return
+
+  const reader = new FileReader()
+
+  reader.readAsDataURL(fileList.value?.item(0) as Blob)
+
+  reader.onload = async () => {
+    const encodedFile = (reader.result as string).split(',')[1]
+
+    await axios
+      .post(
+        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+        {
+          ParentId: id,
+          Name: fileList.value?.item(0)?.name,
+          Body: encodedFile
+        },
+        { headers }
+      )
+      .catch(console.error)
+  }
 }
 </script>
 
@@ -172,6 +204,12 @@ const handleSubmit = async () => {
       <div class="row">
         <div v-for="element of elements.slice(6, 8)" class="col" :key="element.id">
           <FormItem :item="element" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <input type="file" @change="handleChange($event)" />
         </div>
       </div>
 

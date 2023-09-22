@@ -19,6 +19,13 @@ const router = createRouter({
 
 router.beforeResolve(async (to, from, next) => {
   if (sessionStorage.getItem('access_token')) {
+    store.form.contactId = sessionStorage.getItem('id_sparta') || ''
+    store.form.contact = sessionStorage.getItem('contact') || ''
+    store.form.email = sessionStorage.getItem('email') || ''
+    store.form.phone = sessionStorage.getItem('phone') || ''
+    store.form.site = sessionStorage.getItem('site') || ''
+    store.form.team = sessionStorage.getItem('team') || ''
+
     next()
   } else {
     const code = to.query['code']
@@ -48,6 +55,7 @@ router.beforeResolve(async (to, from, next) => {
           store.form.contactId = (
             jwtDecode(res.id_token as string) as { idSparta: string }
           ).idSparta
+          sessionStorage.setItem('id_sparta', store.form.contactId)
         })
         .catch(console.error)
 
@@ -87,6 +95,12 @@ router.beforeResolve(async (to, from, next) => {
           store.form.phone = res.anagrafica.numero_mobile
           store.form.site = res.sede_operativa.nome_sede
           store.form.team = res.sede_operativa.team
+
+          sessionStorage.setItem('contact', store.form.contact)
+          sessionStorage.setItem('email', store.form.email)
+          sessionStorage.setItem('phone', store.form.phone)
+          sessionStorage.setItem('site', store.form.site)
+          sessionStorage.setItem('team', store.form.team)
         })
         .catch(console.error)
 

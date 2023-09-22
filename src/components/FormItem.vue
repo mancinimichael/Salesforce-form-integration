@@ -32,6 +32,7 @@ const filter = (item: FormItem, option: Option) => {
       v-model="store.form[item.id]"
       filled
       required
+      :disabled="item.id === 'contactId'"
       :label="item.label"
       :type="item.type"
     ></sl-input>
