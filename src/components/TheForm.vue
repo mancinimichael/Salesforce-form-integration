@@ -24,12 +24,6 @@ const elements = ref<FormItems>([
     type: 'text'
   },
   {
-    id: 'contactId',
-    label: 'ID Contatto',
-    selector: 'input',
-    type: 'text'
-  },
-  {
     id: 'description',
     label: 'Descrizione',
     selector: 'textarea'
@@ -129,7 +123,7 @@ const handleSubmit = async () => {
     Category__c: elements.value
       .find((element) => element.id === 'category')
       ?.options?.find((option) => option.id === parseInt(form.category))?.value,
-    Contact_Key__c: form.contactId,
+
     Description: form.description,
     Origin: 'Smart',
     Priority: elements.value
@@ -144,11 +138,12 @@ const handleSubmit = async () => {
       ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
 
     // Values obtained from OAuth2
-    SuppliedEmail: store.form.email,
-    SuppliedName: store.form.contact,
-    SuppliedPhone: store.form.phone,
-    Web_Team__c: store.form.team,
-    Web_Site__c: store.form.site
+    Contact_Key__c: store.user.id,
+    SuppliedEmail: store.user.email,
+    SuppliedName: store.user.contact,
+    SuppliedPhone: store.user.phone,
+    Web_Team__c: store.user.team,
+    Web_Site__c: store.user.site
   }
 
   const id = await axios
@@ -184,18 +179,6 @@ const handleSubmit = async () => {
   <div class="container">
     <form @submit.prevent="handleSubmit">
       <div class="row">
-        <div v-for="element of elements.slice(0, 2)" class="col" :key="element.id">
-          <FormItem :item="element" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div v-for="element of elements.slice(2, 3)" class="col" :key="element.id">
-          <FormItem :item="element" />
-        </div>
-      </div>
-
-      <div class="row">
         <div v-for="element of elements.slice(3, 6)" class="col" :key="element.id">
           <FormItem :item="element" />
         </div>
@@ -208,6 +191,18 @@ const handleSubmit = async () => {
       </div>
 
       <div class="row">
+        <div v-for="element of elements.slice(0, 1)" class="col" :key="element.id">
+          <FormItem :item="element" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div v-for="element of elements.slice(2, 3)" class="col" :key="element.id">
+          <FormItem :item="element" />
+        </div>
+      </div>
+
+      <div class="row">
         <div class="col">
           <input type="file" @change="handleChange($event)" />
         </div>
@@ -215,5 +210,6 @@ const handleSubmit = async () => {
 
       <sl-button type="submit" variant="success">Invia</sl-button>
     </form>
+    <pre>{{ form }}</pre>
   </div>
 </template>

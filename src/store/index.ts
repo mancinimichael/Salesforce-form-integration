@@ -5,17 +5,19 @@ export const store = reactive<Store>({
   form: {
     application: '',
     category: '',
-    contact: '',
-    contactId: '',
     description: '',
-    email: '',
-    phone: '',
     priority: '',
     sector: '',
-    site: '',
     subject: '',
-    team: '',
     tipology: ''
+  },
+  user: {
+    contact: '',
+    email: '',
+    id: '',
+    phone: '',
+    site: '',
+    team: ''
   },
   resetForm() {
     Object.keys(this.form).forEach((key) => this.updateForm(key as FormKey, ''))

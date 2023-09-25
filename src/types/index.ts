@@ -20,19 +20,22 @@ export type Values = Value[]
 
 //#region FORM
 
+export type User = {
+  contact: string
+  email: string
+  id: string
+  phone: string
+  site: string
+  team: string
+}
+
 export type Form = {
   application: string
   category: string
-  contact: string
-  contactId: string
   description: string
-  email: string
-  phone: string
   priority: string
   sector: string
-  site: string
   subject: string
-  team: string
   tipology: string
 }
 
@@ -65,7 +68,9 @@ export type FormItemProps = {
   item: FormItem
 }
 
-export type TheFormProps = { form: Form }
+export type TheFormProps = {
+  form: Form
+}
 
 //#endregion
 
@@ -78,6 +83,7 @@ type StoreMethods = {
 
 type StoreParams = {
   form: Form
+  user: User
   bearer?: string
 }
 

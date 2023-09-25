@@ -30,9 +30,8 @@ const filter = (item: FormItem, option: Option) => {
     <sl-input
       v-if="item.selector === 'input'"
       v-model="store.form[item.id]"
-      filled
       required
-      :disabled="item.id === 'contactId'"
+      :disabled="item.disabled"
       :label="item.label"
       :type="item.type"
     ></sl-input>
@@ -40,16 +39,15 @@ const filter = (item: FormItem, option: Option) => {
     <sl-textarea
       v-else-if="item.selector === 'textarea'"
       v-model="store.form[item.id]"
-      filled
       required
       resize="auto"
+      rows="15"
       :label="item.label"
       :type="item.type"
     ></sl-textarea>
 
     <sl-select
       v-if="item.selector === 'option'"
-      filled
       required
       :disabled="disabled(item)"
       :label="item.label"

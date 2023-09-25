@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import axios from 'axios'
 import {
-  GRANT_TYPE,
   CLIENT_ID,
   CLIENT_SECRET,
-  USERNAME,
+  GRANT_TYPE,
+  OAUTH_ENDPOINT,
   PASSWORD,
-  OAUTH_ENDPOINT
+  USERNAME
 } from '@/constants'
 import { store } from '@/store'
 import type { OauthApiResponse } from '@/types'
+import axios from 'axios'
 import { onMounted } from 'vue'
 
 const initializeApp = async () => {
@@ -28,13 +28,30 @@ const initializeApp = async () => {
     .catch(console.error)
 }
 
-onMounted(() => {
-  initializeApp()
-})
+onMounted(() => initializeApp())
+
+const setSmartService = async (event: any) => {
+  const user = await event.detail.getSpartaUser()
+
+  console.log(user)
+
+  store.user.id = user.id
+
+  const SPARTA_ENDPOINT =
+    'http://172.23.6.86/Services/WsRecoveryTK/api/TKrecovery/leads/agents/openContracts'
+
+  await axios
+    .post(SPARTA_ENDPOINT, { idSparta: [store.user.id] })
+    .then((res) => res.data)
+    .then(console.log)
+    .catch(console.error)
+}
 </script>
 
 <template>
   <main>
-    <router-view />
+    <router-view></router-view>
   </main>
+
+  <smart-bus id="smartBus" name="smartBus" app-id="ext-app-1" @ready="setSmartService"></smart-bus>
 </template>
