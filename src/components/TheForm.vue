@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import FormItem from '@/components/FormItem.vue'
+import ToastNotification from '@/components/ToastNotification.vue'
 import {
   APPLICATION_ENDPOINT,
+  CASE_ENDPOINT,
   CATEGORY_ENDPOINT,
   SECTOR_ENDPOINT,
   TIPOLOGY_ENDPOINT
@@ -9,7 +11,7 @@ import {
 import { store } from '@/store'
 import type { ApiResponse, Form, FormItems, Values } from '@/types'
 import axios from 'axios'
-import { ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 type TheFormProps = {
   form: Form
@@ -18,7 +20,6 @@ type TheFormProps = {
 const { form } = defineProps<TheFormProps>()
 
 const fileList = ref<FileList | null>(null)
-
 const elements = ref<FormItems>([
   {
     id: 'subject',
@@ -67,19 +68,17 @@ const elements = ref<FormItems>([
     options: []
   }
 ])
+const toast = ref<boolean>(false)
+const headers = computed(() => ({ Authorization: store.auth.bearer }))
 
 watchEffect(async () => {
   if (!store.auth.bearer) return
 
-  const headers = {
-    Authorization: store.auth.bearer
-  }
-
   await Promise.all([
-    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers }),
-    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers }),
-    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers }),
-    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers })
+    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers: headers.value }),
+    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers: headers.value }),
+    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers: headers.value }),
+    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: headers.value })
   ])
     .then<Values[]>((res) => res.map((r) => r.data.values))
     .then(([applications, categories, sectors, tipologies]) => {
@@ -116,39 +115,49 @@ const handleChange = (event: Event) => {
 }
 
 const handleSubmit = async () => {
-  // if (!Object.values(form).every((value) => !!value)) return
-  // const body = {
-  //   Application__c: elements.value
-  //     .find((element) => element.id === 'application')
-  //     ?.options?.find((option) => option.id === parseInt(form.application))?.value,
-  //   Category__c: elements.value
-  //     .find((element) => element.id === 'category')
-  //     ?.options?.find((option) => option.id === parseInt(form.category))?.value,
-  //   Description: form.description,
-  //   Origin: 'Smart',
-  //   Priority: elements.value
-  //     .find((element) => element.id === 'priority')
-  //     ?.options?.find((option) => option.id === parseInt(form.priority))?.value,
-  //   Sector__c: elements.value
-  //     .find((element) => element.id === 'sector')
-  //     ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
-  //   Subject: form.subject,
-  //   Tipology__c: elements.value
-  //     .find((element) => element.id === 'tipology')
-  //     ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
-  //   // Values obtained from OAuth2
-  //   Contact_Key__c: store.auth.user.id,
-  //   SuppliedEmail: store.auth.user.email,
-  //   SuppliedName: store.auth.user.contact,
-  //   SuppliedPhone: store.auth.user.phone,
-  //   Web_Team__c: store.auth.user.team,
-  //   Web_Site__c: store.auth.user.site
-  // }
-  // const id = await axios
-  //   .post<{ id: string }>(CASE_ENDPOINT, body, { headers: headers.value })
-  //   .then((res) => res.data.id)
-  //   .catch(console.error)
+  if (!Object.values(form).every((value) => !!value)) return
+  const body = {
+    Application__c: elements.value
+      .find((element) => element.id === 'application')
+      ?.options?.find((option) => option.id === parseInt(form.application))?.value,
+    Category__c: elements.value
+      .find((element) => element.id === 'category')
+      ?.options?.find((option) => option.id === parseInt(form.category))?.value,
+    Description: form.description,
+    Origin: 'Smart',
+    Priority: elements.value
+      .find((element) => element.id === 'priority')
+      ?.options?.find((option) => option.id === parseInt(form.priority))?.value,
+    Sector__c: elements.value
+      .find((element) => element.id === 'sector')
+      ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
+    Subject: form.subject,
+    Tipology__c: elements.value
+      .find((element) => element.id === 'tipology')
+      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
+    // Values obtained from OAuth2
+    Contact_Key__c: store.auth.user.id
+    // SuppliedEmail: store.auth.user.email,
+    // SuppliedName: store.auth.user.contact,
+    // SuppliedPhone: store.auth.user.phone,
+    // Web_Team__c: store.auth.user.team,
+    // Web_Site__c: store.auth.user.site
+  }
+
+  const id = await axios
+    .post<{ id: string }>(CASE_ENDPOINT, body, { headers: headers.value })
+    .then((res) => {
+      if (res.status === 201) {
+        toast.value = !toast.value
+        setTimeout(() => (toast.value = !toast.value), 2000)
+      }
+
+      return res.data.id
+    })
+    .catch(console.error)
+
   // if (fileList.value?.length === 0) return
+
   // const reader = new FileReader()
   // reader.readAsDataURL(fileList.value?.item(0) as Blob)
   // reader.onload = async () => {
@@ -203,6 +212,26 @@ const handleSubmit = async () => {
 
       <sl-button type="submit" variant="success">Invia</sl-button>
     </form>
-    <pre>{{ form }}</pre>
+
+    <Transition>
+      <toast-notification v-if="toast">
+        <template #title>
+          <sl-icon name="check-circle-fill"></sl-icon>
+          <span> Ticket creato con successo </span>
+        </template>
+      </toast-notification>
+    </Transition>
   </div>
 </template>
+
+<style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>

@@ -16,7 +16,7 @@ const SALESFORCE_API_ENDPOINT = `${SALESFORCE_ENDPOINT}/data/v58.0/ui-api/object
 
 export const APPLICATION_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Application__c`
 
-export const CASE_ENDPOINT = `${SALESFORCE_ENDPOINT}/sobjects/Case`
+export const CASE_ENDPOINT = `${SALESFORCE_ENDPOINT}/data/v58.0/sobjects/Case`
 
 export const CATEGORY_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Category__c`
 
