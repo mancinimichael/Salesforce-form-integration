@@ -12,7 +12,7 @@ type Response = {
   Id: string
   Name: string
   Contact_Key__c: string
-  Subject_Key__c: string
+  Subject__c: string
   Date_Time_Opened__c: string
   Status__c: string
   Sector__c: string
@@ -21,7 +21,7 @@ type Response = {
 type Key = keyof Response
 
 const fields = [
-  'Id',
+  // 'Id',
   'Name',
   'Contact_Key__c',
   'Subject__c',
@@ -60,27 +60,63 @@ onMounted(async () => {
 <template>
   <div class="title-header">
     <h1>I tuoi ticket</h1>
-    <span class="sparta-id">Sparta ID: {{ store.auth.user.id }}</span>
+    <sl-button variant="success" @click="router.push('home')">Crea ticket</sl-button>
   </div>
 
-  <button @click="router.push('home')">Crea ticket</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th v-for="(field, index) of fields" :key="index">{{ field }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(ticket, index) of tickets" :key="index">
-        <td>{{ ticket.Id }}</td>
-        <td>{{ ticket.Name }}</td>
-        <td>{{ ticket.Contact_Key__c }}</td>
-        <td>{{ ticket.Subject_Key__c }}</td>
-        <td>{{ ticket.Date_Time_Opened__c }}</td>
-        <td>{{ ticket.Status__c }}</td>
-        <td>{{ ticket.Sector__c }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th v-for="(field, index) of fields" :key="index">{{ field }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(ticket, index) of tickets" :key="index">
+          <!-- <td>{{ ticket.Id }}</td> -->
+          <td>{{ ticket.Name }}</td>
+          <td>{{ ticket.Contact_Key__c }}</td>
+          <td>{{ ticket.Subject__c }}</td>
+          <td>{{ new Date(ticket.Date_Time_Opened__c).toDateString() }}</td>
+          <td>{{ ticket.Status__c }}</td>
+          <td>{{ ticket.Sector__c }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
+
+<style scoped>
+table {
+  border: 4px solid var(--sl-color-neutral-700);
+  border-top: 0;
+  border-collapse: collapse;
+  margin: 0 auto;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+table thead {
+  background-color: var(--sl-color-neutral-700);
+  color: var(--sl-color-neutral-0);
+  position: sticky;
+  top: 0;
+}
+
+table tr {
+  text-align: left;
+}
+
+table td:nth-child(odd) {
+  background-color: var(--sl-color-neutral-100);
+}
+
+table td:nth-child(even) {
+  background-color: var(--sl-color-neutral-200);
+}
+
+table td,
+table th {
+  padding: 16px;
+  width: fit-content;
+}
+</style>
