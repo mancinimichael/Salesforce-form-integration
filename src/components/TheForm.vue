@@ -68,7 +68,7 @@ const elements = ref<FormItems>([
     options: []
   }
 ])
-const toast = ref<boolean>(false)
+const toast = ref<InstanceType<typeof ToastNotification> | null>(null)
 const headers = computed(() => ({ Authorization: store.auth.bearer }))
 
 watchEffect(async () => {
@@ -148,8 +148,7 @@ const handleSubmit = async () => {
     .post<{ id: string }>(CASE_ENDPOINT, body, { headers: headers.value })
     .then((res) => {
       if (res.status === 201) {
-        toast.value = !toast.value
-        setTimeout(() => (toast.value = !toast.value), 2000)
+        toast.value?.show()
       }
 
       return res.data.id
@@ -214,7 +213,7 @@ const handleSubmit = async () => {
     </form>
 
     <Transition>
-      <toast-notification v-if="toast">
+      <toast-notification ref="toast">
         <template #title>
           <sl-icon name="check-circle-fill"></sl-icon>
           <span> Ticket creato con successo </span>

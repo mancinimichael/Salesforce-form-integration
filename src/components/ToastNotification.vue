@@ -1,7 +1,21 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const visible = ref<boolean>(false)
+
+const show = () => {
+  visible.value = true
+
+  setTimeout(() => (visible.value = false), 2000)
+}
+
+defineExpose({
+  show
+})
+</script>
 
 <template>
-  <div class="toast-container">
+  <div v-if="visible" class="toast-container">
     <div class="toast-title">
       <slot name="title"></slot>
     </div>
