@@ -179,13 +179,13 @@ const handleSubmit = async () => {
   <div class="container">
     <form @submit.prevent="handleSubmit">
       <div class="row">
-        <div v-for="element of elements.slice(3, 6)" class="col" :key="element.id">
+        <div v-for="element of elements.slice(2, 5)" class="col" :key="element.id">
           <FormItem :item="element" />
         </div>
       </div>
 
       <div class="row">
-        <div v-for="element of elements.slice(6, 8)" class="col" :key="element.id">
+        <div v-for="element of elements.slice(5, 7)" class="col" :key="element.id">
           <FormItem :item="element" />
         </div>
       </div>
@@ -197,7 +197,7 @@ const handleSubmit = async () => {
       </div>
 
       <div class="row">
-        <div v-for="element of elements.slice(2, 3)" class="col" :key="element.id">
+        <div v-for="element of elements.slice(1, 2)" class="col" :key="element.id">
           <FormItem :item="element" />
         </div>
       </div>
