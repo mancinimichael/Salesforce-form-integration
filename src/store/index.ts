@@ -11,13 +11,16 @@ export const store = reactive<Store>({
     subject: '',
     tipology: ''
   },
-  user: {
-    contact: '',
-    email: '',
-    id: '',
-    phone: '',
-    site: '',
-    team: ''
+  auth: {
+    bearer: '',
+    user: {
+      contact: '',
+      email: '',
+      id: '',
+      phone: '',
+      site: '',
+      team: ''
+    }
   },
   resetForm() {
     Object.keys(this.form).forEach((key) => this.updateForm(key as FormKey, ''))

@@ -2,15 +2,18 @@
 import FormItem from '@/components/FormItem.vue'
 import {
   APPLICATION_ENDPOINT,
-  CASE_ENDPOINT,
   CATEGORY_ENDPOINT,
   SECTOR_ENDPOINT,
   TIPOLOGY_ENDPOINT
 } from '@/constants'
 import { store } from '@/store'
-import type { ApiResponse, FormItems, TheFormProps, Values } from '@/types'
+import type { ApiResponse, Form, FormItems, Values } from '@/types'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { ref, watchEffect } from 'vue'
+
+type TheFormProps = {
+  form: Form
+}
 
 const { form } = defineProps<TheFormProps>()
 
@@ -65,9 +68,11 @@ const elements = ref<FormItems>([
   }
 ])
 
-onMounted(async () => {
+watchEffect(async () => {
+  if (!store.auth.bearer) return
+
   const headers = {
-    Authorization: `${store.bearer}`
+    Authorization: store.auth.bearer
   }
 
   await Promise.all([
@@ -102,6 +107,7 @@ onMounted(async () => {
           ?.options?.push({ id: index, value: tipology.value, sectorId: `${tipology.validFor[0]}` })
       })
     })
+    .catch(console.error)
 })
 
 const handleChange = (event: Event) => {
@@ -110,68 +116,55 @@ const handleChange = (event: Event) => {
 }
 
 const handleSubmit = async () => {
-  if (!Object.values(form).every((value) => !!value)) return
-
-  const headers = {
-    Authorization: `${store.bearer}`
-  }
-
-  const body = {
-    Application__c: elements.value
-      .find((element) => element.id === 'application')
-      ?.options?.find((option) => option.id === parseInt(form.application))?.value,
-    Category__c: elements.value
-      .find((element) => element.id === 'category')
-      ?.options?.find((option) => option.id === parseInt(form.category))?.value,
-
-    Description: form.description,
-    Origin: 'Smart',
-    Priority: elements.value
-      .find((element) => element.id === 'priority')
-      ?.options?.find((option) => option.id === parseInt(form.priority))?.value,
-    Sector__c: elements.value
-      .find((element) => element.id === 'sector')
-      ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
-    Subject: form.subject,
-    Tipology__c: elements.value
-      .find((element) => element.id === 'tipology')
-      ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
-
-    // Values obtained from OAuth2
-    Contact_Key__c: store.user.id,
-    SuppliedEmail: store.user.email,
-    SuppliedName: store.user.contact,
-    SuppliedPhone: store.user.phone,
-    Web_Team__c: store.user.team,
-    Web_Site__c: store.user.site
-  }
-
-  const id = await axios
-    .post<{ id: string }>(CASE_ENDPOINT, body, { headers })
-    .then((res) => res.data.id)
-    .catch(console.error)
-
-  if (fileList.value?.length === 0) return
-
-  const reader = new FileReader()
-
-  reader.readAsDataURL(fileList.value?.item(0) as Blob)
-
-  reader.onload = async () => {
-    const encodedFile = (reader.result as string).split(',')[1]
-
-    await axios
-      .post(
-        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
-        {
-          ParentId: id,
-          Name: fileList.value?.item(0)?.name,
-          Body: encodedFile
-        },
-        { headers }
-      )
-      .catch(console.error)
-  }
+  // if (!Object.values(form).every((value) => !!value)) return
+  // const body = {
+  //   Application__c: elements.value
+  //     .find((element) => element.id === 'application')
+  //     ?.options?.find((option) => option.id === parseInt(form.application))?.value,
+  //   Category__c: elements.value
+  //     .find((element) => element.id === 'category')
+  //     ?.options?.find((option) => option.id === parseInt(form.category))?.value,
+  //   Description: form.description,
+  //   Origin: 'Smart',
+  //   Priority: elements.value
+  //     .find((element) => element.id === 'priority')
+  //     ?.options?.find((option) => option.id === parseInt(form.priority))?.value,
+  //   Sector__c: elements.value
+  //     .find((element) => element.id === 'sector')
+  //     ?.options?.find((option) => option.id === parseInt(form.sector))?.value,
+  //   Subject: form.subject,
+  //   Tipology__c: elements.value
+  //     .find((element) => element.id === 'tipology')
+  //     ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
+  //   // Values obtained from OAuth2
+  //   Contact_Key__c: store.auth.user.id,
+  //   SuppliedEmail: store.auth.user.email,
+  //   SuppliedName: store.auth.user.contact,
+  //   SuppliedPhone: store.auth.user.phone,
+  //   Web_Team__c: store.auth.user.team,
+  //   Web_Site__c: store.auth.user.site
+  // }
+  // const id = await axios
+  //   .post<{ id: string }>(CASE_ENDPOINT, body, { headers: headers.value })
+  //   .then((res) => res.data.id)
+  //   .catch(console.error)
+  // if (fileList.value?.length === 0) return
+  // const reader = new FileReader()
+  // reader.readAsDataURL(fileList.value?.item(0) as Blob)
+  // reader.onload = async () => {
+  //   const encodedFile = (reader.result as string).split(',')[1]
+  //   await axios
+  //     .post(
+  //       'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+  //       {
+  //         ParentId: id,
+  //         Name: fileList.value?.item(0)?.name,
+  //         Body: encodedFile
+  //       },
+  //       { headers: headers.value }
+  //     )
+  //     .catch(console.error)
+  // }
 }
 </script>
 

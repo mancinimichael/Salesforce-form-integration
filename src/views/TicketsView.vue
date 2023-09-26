@@ -33,7 +33,7 @@ const fields = [
 const query = `
     SELECT ${fields.join(', ')}
     FROM CaseInternal__c
-    WHERE Contact_Key__c = '${store.user.id}'
+    WHERE Contact_Key__c = '${store.auth.user.id}'
 `
 
 const tickets = ref<Response[]>([])
@@ -41,7 +41,7 @@ const router = useRouter()
 
 onMounted(async () => {
   const headers = {
-    Authorization: `${store.bearer}`
+    Authorization: `${store.auth.bearer}`
   }
 
   await axios
@@ -60,7 +60,7 @@ onMounted(async () => {
 <template>
   <div class="title-header">
     <h1>I tuoi ticket</h1>
-    <span class="sparta-id">Sparta ID: {{ store.user.id }}</span>
+    <span class="sparta-id">Sparta ID: {{ store.auth.user.id }}</span>
   </div>
 
   <button @click="router.push('home')">Crea ticket</button>

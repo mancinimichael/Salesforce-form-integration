@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { store } from '@/store'
-import type { FormItem, FormItemProps, Option } from '@/types'
+import type { FormItem, Option } from '@/types'
+
+type FormItemProps = {
+  item: FormItem
+}
 
 const { item } = defineProps<FormItemProps>()
 
@@ -31,7 +35,6 @@ const filter = (item: FormItem, option: Option) => {
       v-if="item.selector === 'input'"
       v-model="store.form[item.id]"
       required
-      :disabled="item.disabled"
       :label="item.label"
       :type="item.type"
     ></sl-input>

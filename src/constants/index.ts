@@ -1,43 +1,27 @@
-//#region TOKEN
+const SALESFORCE_ENDPOINT = import.meta.env.VITE_SALESFORCE_ENDPOINT
 
-export const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
+export const SALESFORCE_CLIENT_ID = import.meta.env.VITE_SALESFORCE_CLIENT_ID
 
-export const CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET
+export const SALESFORCE_CLIENT_SECRET = import.meta.env.VITE_SALESFORCE_CLIENT_SECRET
 
-export const GRANT_TYPE = import.meta.env.VITE_GRANT_TYPE
+export const SALESFORCE_GRANT_TYPE = import.meta.env.VITE_SALESFORCE_GRANT_TYPE
 
-export const USERNAME = import.meta.env.VITE_USERNAME
+export const SALESFORCE_USERNAME = import.meta.env.VITE_SALESFORCE_USERNAME
 
-export const PASSWORD = import.meta.env.VITE_PASSWORD
+export const SALESFORCE_PASSWORD = import.meta.env.VITE_SALESFORCE_PASSWORD
 
-//#endregion
+export const SALESFORCE_OAUTH_ENDPOINT = `${SALESFORCE_ENDPOINT}/oauth2/token`
 
-//#region ENDPOINT
+const SALESFORCE_API_ENDPOINT = `${SALESFORCE_ENDPOINT}/data/v58.0/ui-api/object-info/Case/picklist-values/012000000000000AAA`
 
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT
+export const APPLICATION_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Application__c`
 
-export const APPLICATION_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/Case/picklist-values/012000000000000AAA/Application__c`
+export const CASE_ENDPOINT = `${SALESFORCE_ENDPOINT}/sobjects/Case`
 
-export const CASE_ENDPOINT = `${API_ENDPOINT}/data/v58.0/sobjects/Case`
+export const CATEGORY_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Category__c`
 
-export const CATEGORY_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/Case/picklist-values/012000000000000AAA/Category__c`
+export const SECTOR_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Sector__c`
 
-export const OAUTH_ENDPOINT = `${API_ENDPOINT}/oauth2/token`
+export const TIPOLOGY_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Tipology__c`
 
-export const SECTOR_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/Case/picklist-values/012000000000000AAA/Sector__c`
-
-export const TIPOLOGY_ENDPOINT = `${API_ENDPOINT}/data/v58.0/ui-api/object-info/Case/picklist-values/012000000000000AAA/Tipology__c`
-
-//#endregion
-
-//#region OAUTH
-
-export const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID
-
-export const OAUTH_CODE = import.meta.env.VITE_OAUTH_CODE
-
-export const OAUTH_SCOPE = import.meta.env.VITE_OAUTH_SCOPE
-
-export const OAUTH_REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI
-
-//#endregion
+export const SPARTA_ENDPOINT = import.meta.env.VITE_SPARTA_ENDPOINT
