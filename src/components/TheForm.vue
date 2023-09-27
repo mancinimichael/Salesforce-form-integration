@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FormItem from '@/components/TheFormItem.vue'
-import ToastNotification from '@/components/TheToast.vue'
+import TheToast from '@/components/TheToast.vue'
 import {
   APPLICATION_ENDPOINT,
   CASE_ENDPOINT,
@@ -19,7 +19,8 @@ type TheFormProps = {
 
 const { form } = defineProps<TheFormProps>()
 
-const fileList = ref<FileList | null>(null)
+const headers = computed(() => ({ Authorization: store.auth.bearer }))
+
 const elements = ref<FormItems>([
   {
     id: 'subject',
@@ -68,8 +69,8 @@ const elements = ref<FormItems>([
     options: []
   }
 ])
-const toast = ref<InstanceType<typeof ToastNotification> | null>(null)
-const headers = computed(() => ({ Authorization: store.auth.bearer }))
+const fileList = ref<FileList | null>(null)
+const toast = ref<InstanceType<typeof TheToast> | null>(null)
 
 watchEffect(async () => {
   if (!store.auth.bearer) return
@@ -116,6 +117,7 @@ const handleChange = (event: Event) => {
 
 const handleSubmit = async () => {
   if (!Object.values(form).every((value) => !!value)) return
+
   const body = {
     Application__c: elements.value
       .find((element) => element.id === 'application')
@@ -148,31 +150,31 @@ const handleSubmit = async () => {
     .post<{ id: string }>(CASE_ENDPOINT, body, { headers: headers.value })
     .then((res) => {
       if (res.status === 201) {
-        toast.value?.show()
+        toast.value?.show('Ticket creato con successo')
       }
 
       return res.data.id
     })
     .catch(console.error)
 
-  // if (fileList.value?.length === 0) return
+  if (fileList.value?.length === 0) return
 
-  // const reader = new FileReader()
-  // reader.readAsDataURL(fileList.value?.item(0) as Blob)
-  // reader.onload = async () => {
-  //   const encodedFile = (reader.result as string).split(',')[1]
-  //   await axios
-  //     .post(
-  //       'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
-  //       {
-  //         ParentId: id,
-  //         Name: fileList.value?.item(0)?.name,
-  //         Body: encodedFile
-  //       },
-  //       { headers: headers.value }
-  //     )
-  //     .catch(console.error)
-  // }
+  const reader = new FileReader()
+  reader.readAsDataURL(fileList.value?.item(0) as Blob)
+  reader.onload = async () => {
+    const encodedFile = (reader.result as string).split(',')[1]
+    await axios
+      .post(
+        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+        {
+          ParentId: id,
+          Name: fileList.value?.item(0)?.name,
+          Body: encodedFile
+        },
+        { headers: headers.value }
+      )
+      .catch(console.error)
+  }
 }
 </script>
 
@@ -180,43 +182,29 @@ const handleSubmit = async () => {
   <div class="container">
     <form @submit.prevent="handleSubmit">
       <div class="row">
-        <div v-for="element of elements.slice(2, 5)" class="col" :key="element.id">
-          <FormItem :item="element" />
+        <div class="col-2">
+          <div v-for="element of elements.slice(2, 7)" :key="element.id">
+            <FormItem :item="element" />
+          </div>
+
+          <div>
+            <input type="file" @change="handleChange($event)" />
+          </div>
+        </div>
+
+        <div class="col-8">
+          <div v-for="element of elements.slice(0, 2)" :key="element.id">
+            <FormItem :item="element" />
+          </div>
+
+          <sl-button-group>
+            <sl-button type="submit" variant="success">Invia</sl-button>
+            <sl-button type="reset" variant="danger">Reset</sl-button>
+          </sl-button-group>
         </div>
       </div>
-
-      <div class="row">
-        <div v-for="element of elements.slice(5, 7)" class="col" :key="element.id">
-          <FormItem :item="element" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div v-for="element of elements.slice(0, 1)" class="col" :key="element.id">
-          <FormItem :item="element" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div v-for="element of elements.slice(1, 2)" class="col" :key="element.id">
-          <FormItem :item="element" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col">
-          <input type="file" @change="handleChange($event)" />
-        </div>
-      </div>
-
-      <sl-button type="submit" variant="success">Invia</sl-button>
     </form>
 
-    <the-toast ref="toast">
-      <template #title>
-        <sl-icon name="check-circle-fill"></sl-icon>
-        <span> Ticket creato con successo </span>
-      </template>
-    </the-toast>
+    <the-toast ref="toast"></the-toast>
   </div>
 </template>

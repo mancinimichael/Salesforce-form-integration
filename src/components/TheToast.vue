@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const message = ref<string>('')
 const visible = ref<boolean>(false)
 
-const show = () => {
+const show = (msg: string) => {
+  message.value = msg
   visible.value = true
 
-  setTimeout(() => (visible.value = false), 2000)
+  setTimeout(() => {
+    message.value = ''
+    visible.value = false
+  }, 2000)
 }
 
-defineExpose({
-  show
-})
+defineExpose({ show })
 </script>
 
 <template>
   <Transition>
     <div v-if="visible" class="toast-container">
-      <div class="toast-title">
-        <slot name="title"></slot>
-      </div>
-      <div class="tost-body">
-        <slot name="body"></slot>
-      </div>
+      <span class="toast-message">
+        {{ message }}
+      </span>
     </div>
   </Transition>
 </template>
@@ -39,11 +39,9 @@ defineExpose({
   width: fit-content;
 }
 
-.toast-container .toast-title {
-  align-items: center;
-  display: flex;
+.toast-container .toast-message {
+  font-size: var(--sl-spacing-medium);
   font-weight: 600;
-  gap: 8px;
   padding: 4px 0;
 }
 

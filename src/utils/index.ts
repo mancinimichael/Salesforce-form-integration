@@ -22,7 +22,9 @@ export const initApp = async () => {
   await axios
     .post<OAuthResponse>(SALESFORCE_OAUTH_ENDPOINT, formData)
     .then((res) => res.data)
-    .then((res) => (store.auth.bearer = `${res.token_type} ${res.access_token}`))
+    .then((res) => {
+      store.auth.bearer = `${res.token_type} ${res.access_token}`
+    })
     .catch(console.error)
 }
 

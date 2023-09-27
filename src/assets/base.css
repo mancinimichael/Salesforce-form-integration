@@ -14,36 +14,22 @@ body,
   height: 100vh;
 }
 
-main {
+.container {
+  margin: 0 auto;
   padding: 1.5rem 5rem;
 }
 
-.container {
-  margin: 0 auto;
-  max-width: 80%;
-}
-
-.container .row {
+.row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 2.5rem;
 }
 
-.container .row .col {
-  flex: 1 0 auto;
+.col-2 {
+  width: 20%;
 }
 
-.title-header {
-  align-items: baseline;
-  display: flex;
-  justify-content: space-between;
-  margin: 0 auto;
-  margin-bottom: 2rem;
-  max-width: 80%;
-}
-
-.title-header .sparta-id {
-  font-size: 0.75rem;
+.col-8 {
+  width: 80%;
 }
 
 .wrapper {

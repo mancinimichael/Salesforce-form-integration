@@ -1,11 +1,9 @@
 <script setup lang="ts">
+import { store } from '@/store'
 import { initApp, initSmart } from '@/utils'
 import { onMounted } from 'vue'
-import { store } from '@/store'
 
-onMounted(() => {
-  initApp()
-})
+onMounted(() => initApp())
 </script>
 
 <template>

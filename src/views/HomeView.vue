@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import TheForm from '@/components/TheForm.vue'
+import TheHeader from '@/components/TheHeader.vue'
 import { store } from '@/store'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
 </script>
 
 <template>
-  <div class="title-header">
-    <h1>Crea ticket</h1>
-    <sl-button variant="success" @click="router.push('tickets')">Visualizza ticket</sl-button>
-  </div>
-
+  <the-header
+    :button="'Visualizza ticket'"
+    :navigate="'tickets'"
+    :title="'Crea ticket'"
+  ></the-header>
   <the-form :form="store.form" />
 </template>
