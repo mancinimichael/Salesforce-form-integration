@@ -29,6 +29,8 @@ export const initApp = async () => {
 export const initSmart = async (event: any) => {
   const user = await event.detail.getSpartaUser()
 
+  if (!user) return
+
   store.auth.user.id = user.id
 
   // const body = {
