@@ -15,14 +15,16 @@ defineExpose({
 </script>
 
 <template>
-  <div v-if="visible" class="toast-container">
-    <div class="toast-title">
-      <slot name="title"></slot>
+  <Transition>
+    <div v-if="visible" class="toast-container">
+      <div class="toast-title">
+        <slot name="title"></slot>
+      </div>
+      <div class="tost-body">
+        <slot name="body"></slot>
+      </div>
     </div>
-    <div class="tost-body">
-      <slot name="body"></slot>
-    </div>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>
@@ -43,5 +45,15 @@ defineExpose({
   font-weight: 600;
   gap: 8px;
   padding: 4px 0;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

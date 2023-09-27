@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import FormItem from '@/components/FormItem.vue'
-import ToastNotification from '@/components/ToastNotification.vue'
+import FormItem from '@/components/TheFormItem.vue'
+import ToastNotification from '@/components/TheToast.vue'
 import {
   APPLICATION_ENDPOINT,
   CASE_ENDPOINT,
@@ -212,25 +212,11 @@ const handleSubmit = async () => {
       <sl-button type="submit" variant="success">Invia</sl-button>
     </form>
 
-    <Transition>
-      <toast-notification ref="toast">
-        <template #title>
-          <sl-icon name="check-circle-fill"></sl-icon>
-          <span> Ticket creato con successo </span>
-        </template>
-      </toast-notification>
-    </Transition>
+    <the-toast ref="toast">
+      <template #title>
+        <sl-icon name="check-circle-fill"></sl-icon>
+        <span> Ticket creato con successo </span>
+      </template>
+    </the-toast>
   </div>
 </template>
-
-<style scoped>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-</style>
