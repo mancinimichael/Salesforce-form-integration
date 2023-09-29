@@ -12,5 +12,5 @@ const route = useRoute()
     :navigate="'tickets'"
     :title="`Ticket ${route.params.id}`"
   ></the-header>
-  <ticket-details :ticket="`${route.params.id}`"></ticket-details>
+  <ticket-details :ticket-id="`${route.params.id}`"></ticket-details>
 </template>

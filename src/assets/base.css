@@ -28,6 +28,10 @@ body,
   width: 20%;
 }
 
+.col-5 {
+  width: 50%;
+}
+
 .col-8 {
   width: 80%;
 }
