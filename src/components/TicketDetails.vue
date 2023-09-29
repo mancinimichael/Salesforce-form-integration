@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CASE_INTERNAL_ENDPOINT } from '@/constants'
+import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
@@ -67,6 +67,11 @@ type DetailsInfo = {
   value: string
 }
 
+type Comment = {
+  Status__c: string
+  Comments__c: string
+}
+
 const { ticketId } = defineProps<TicketDetailsProps>()
 const caseDetails = ref<Case>({
   Application__c: { label: '', value: '' },
@@ -96,6 +101,27 @@ const statusDetails = ref<Status>({
   Status__c: { label: '', value: '' }
 })
 
+const comment = ref<string>('')
+
+const comments = ref<Comment[]>([])
+
+const query = ref<string>(`
+  SELECT Status__c, Comments__c, CreatedDate
+  FROM CaseInternalHistory__c
+  WHERE CaseInternalName__c = '${ticketId}'
+`)
+
+const dialog = ref<any>()
+
+const handleSubmit = async () => {
+  const headers = { Authorization: store.auth.bearer }
+
+  await axios
+    .patch(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { Comments__c: comment.value }, { headers })
+    .then((res) => res.data)
+    .catch(console.error)
+}
+
 onMounted(async () => {
   const headers = { Authorization: store.auth.bearer }
 
@@ -103,39 +129,60 @@ onMounted(async () => {
     .get(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { headers })
     .then<Details>((res) => res.data)
     .then((res) => {
-      caseDetails.value.Application__c = { label: 'Application', value: res.Application__c }
-      caseDetails.value.Category__c = { label: 'Category', value: res.Category__c }
-      caseDetails.value.Name = { label: 'Case Number', value: res.Name }
-      caseDetails.value.Origin__c = { label: 'Origin', value: res.Origin__c }
-      caseDetails.value.Reason__c = { label: 'Reason', value: res.Reason__c }
-      caseDetails.value.Sector__c = { label: 'Sector', value: res.Sector__c }
-      caseDetails.value.Type__c = { label: 'Type', value: res.Type__c }
+      caseDetails.value.Application__c = { label: 'Application', value: res.Application__c ?? '-' }
+      caseDetails.value.Category__c = { label: 'Category', value: res.Category__c ?? '-' }
+      caseDetails.value.Name = { label: 'Case Number', value: res.Name ?? '-' }
+      caseDetails.value.Origin__c = { label: 'Origin', value: res.Origin__c ?? '-' }
+      caseDetails.value.Reason__c = { label: 'Reason', value: res.Reason__c ?? '-' }
+      caseDetails.value.Sector__c = { label: 'Sector', value: res.Sector__c ?? '-' }
+      caseDetails.value.Type__c = { label: 'Type', value: res.Type__c ?? '-' }
 
       generalDetails.value.CaseInternalLook__c = {
         label: 'Case Internal Look',
-        value: res.CaseInternalLook__c
+        value: res.CaseInternalLook__c ?? '-'
       }
-      generalDetails.value.Contact__c = { label: 'Contact', value: res.Contact__c }
-      generalDetails.value.Contact_Key__c = { label: 'Contact Key', value: res.Contact_Key__c }
+      generalDetails.value.Contact__c = { label: 'Contact', value: res.Contact__c ?? '-' }
+      generalDetails.value.Contact_Key__c = {
+        label: 'Contact Key',
+        value: res.Contact_Key__c ?? '-'
+      }
       generalDetails.value.Date_Time_Closed__c = {
         label: 'Date / Time Closed',
-        value: res.Date_Time_Closed__c
+        value: res.Date_Time_Closed__c ? new Date(res.Date_Time_Closed__c).toDateString() : '-'
       }
       generalDetails.value.Date_Time_Opened__c = {
         label: 'Date / Time Opened',
-        value: res.Date_Time_Opened__c
+        value: new Date(res.Date_Time_Opened__c).toDateString()
       }
-      generalDetails.value.Note__c = { label: 'Note', value: res.Note__c }
-      generalDetails.value.Subject__c = { label: 'Subject', value: res.Subject__c }
-      generalDetails.value.SuppliedName__c = { label: 'Web Name', value: res.SuppliedName__c }
-      generalDetails.value.SuppliedPhone__c = { label: 'Web Phone', value: res.SuppliedPhone__c }
-      generalDetails.value.WebEmail__c = { label: 'Web Email', value: res.WebEmail__c }
-      generalDetails.value.Web_Site__c = { label: 'Web Site', value: res.Web_Site__c }
-      generalDetails.value.Web_Team__c = { label: 'Web Email', value: res.Web_Team__c }
+      generalDetails.value.Note__c = { label: 'Note', value: res.Note__c ?? '-' }
+      generalDetails.value.Subject__c = { label: 'Subject', value: res.Subject__c ?? '-' }
+      generalDetails.value.SuppliedName__c = {
+        label: 'Web Name',
+        value: res.SuppliedName__c ?? '-'
+      }
+      generalDetails.value.SuppliedPhone__c = {
+        label: 'Web Phone',
+        value: res.SuppliedPhone__c ?? '-'
+      }
+      generalDetails.value.WebEmail__c =
+        { label: 'Web Email', value: res.WebEmail__c ?? '-' } ?? '-'
+      generalDetails.value.Web_Site__c = { label: 'Web Site', value: res.Web_Site__c ?? '-' }
+      generalDetails.value.Web_Team__c = { label: 'Web Email', value: res.Web_Team__c ?? '-' }
 
-      statusDetails.value.Comments__c = { label: 'Comments', value: res.Comments__c }
-      statusDetails.value.Status__c = { label: 'Status', value: res.Status__c }
+      statusDetails.value.Comments__c = { label: 'Comments', value: res.Comments__c ?? '-' }
+      statusDetails.value.Status__c = { label: 'Status', value: res.Status__c ?? '-' }
     })
+    .catch(console.error)
+
+  await axios
+    .get(QUERY_ENDPOINT, {
+      headers,
+      params: {
+        q: query.value.trim()
+      }
+    })
+    .then<Comment[]>((res) => res.data.records)
+    .then((res) => (comments.value = res))
     .catch(console.error)
 })
 </script>
@@ -294,6 +341,24 @@ onMounted(async () => {
               disabled
               filled
             ></sl-input>
+            <sl-button @click="dialog.show()">Visualizza tutti i commenti</sl-button>
+            <sl-textarea v-model="comment" rows="15" label="Aggiungi commento"></sl-textarea>
+            <sl-button type="submit" variant="primary" @click="handleSubmit" :disabled="!comment">
+              Aggiungi
+            </sl-button>
+
+            <Transition>
+              <sl-dialog label="Commenti" ref="dialog">
+                <div v-for="(comment, index) of comments" class="dialog-container" :key="index">
+                  <span>
+                    {{ comment.Comments__c }}
+                  </span>
+                  <span>
+                    {{ comment.Status__c }}
+                  </span>
+                </div>
+              </sl-dialog>
+            </Transition>
           </div>
         </div>
       </sl-tab-panel>
@@ -302,7 +367,26 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+sl-button,
 sl-input {
   margin-bottom: var(--sl-spacing-medium);
+}
+sl-textarea {
+  margin-bottom: var(--sl-spacing-x-small);
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.dialog-container {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
