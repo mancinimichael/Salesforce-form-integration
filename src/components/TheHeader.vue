@@ -14,7 +14,7 @@ const router = useRouter()
 <template>
   <header class="header">
     <h1>{{ title }}</h1>
-    <sl-button size="small" variant="primary" @click="router.push(navigate ?? 'home')">
+    <sl-button size="small" variant="primary" @click="router.push({ name: navigate ?? 'home' })">
       {{ button }}
     </sl-button>
   </header>

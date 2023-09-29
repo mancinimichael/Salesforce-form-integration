@@ -1,0 +1,16 @@
+<script setup lang="ts">
+import TheHeader from '@/components/TheHeader.vue'
+import TicketDetails from '@/components/TicketDetails.vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+</script>
+
+<template>
+  <the-header
+    :button="'Visualizza tutti'"
+    :navigate="'tickets'"
+    :title="`Ticket ${route.params.id}`"
+  ></the-header>
+  <ticket-details :ticket="`${route.params.id}`"></ticket-details>
+</template>

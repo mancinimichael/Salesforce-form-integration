@@ -2,6 +2,7 @@
 import { store } from '@/store'
 import axios from 'axios'
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const LIMIT = 10
 
@@ -41,16 +42,35 @@ type Response = {
   expr0?: number
 }
 
-type Key = keyof Response
-
 const fields = [
-  'Id',
-  'Name',
-  'Contact_Key__c',
-  'Subject__c',
-  'Date_Time_Opened__c',
-  'Status__c',
-  'Sector__c'
+  {
+    property: 'Id',
+    name: 'Id'
+  },
+  {
+    property: 'Name',
+    name: 'Ticket'
+  },
+  // {
+  //   property: 'Contact_Key__c',
+  //   name: 'ID Sparta'
+  // },
+  {
+    property: 'Subject__c',
+    name: 'Oggetto'
+  },
+  {
+    property: 'Date_Time_Opened__c',
+    name: 'Data creazione'
+  },
+  {
+    property: 'Status__c',
+    name: 'Stato'
+  },
+  {
+    property: 'Sector__c',
+    name: 'Sezione'
+  }
 ]
 
 const countQuery = `
@@ -61,7 +81,7 @@ const countQuery = `
 
 const query = computed(
   () => `
-  SELECT ${fields.join(', ')}
+  SELECT ${fields.map((field) => field.property).join(', ')}
   FROM CaseInternal__c
   WHERE Contact_Key__c = '${store.auth.user.id}'
   LIMIT ${LIMIT}
@@ -70,6 +90,8 @@ const query = computed(
 )
 
 const tickets = ref<Response[]>([])
+
+const router = useRouter()
 
 onMounted(async () => {
   const headers = {
@@ -105,18 +127,27 @@ onMounted(async () => {
     <table>
       <thead>
         <tr>
-          <th v-for="(field, index) of fields" :key="index">{{ field }}</th>
+          <th v-for="(field, index) of fields.map((field) => field.name)" :key="index">
+            {{ field }}
+          </th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(ticket, index) of tickets" :key="index">
           <td>{{ ticket.Id }}</td>
           <td>{{ ticket.Name }}</td>
-          <td>{{ ticket.Contact_Key__c }}</td>
+          <!-- <td>{{ ticket.Contact_Key__c }}</td> -->
           <td>{{ ticket.Subject__c }}</td>
           <td>{{ new Date(ticket.Date_Time_Opened__c).toDateString() }}</td>
           <td>{{ ticket.Status__c }}</td>
           <td>{{ ticket.Sector__c }}</td>
+          <td>
+            <sl-icon
+              name="info-circle"
+              @click="router.push({ name: 'ticket', params: { id: ticket.Id } })"
+            ></sl-icon>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -138,6 +169,32 @@ onMounted(async () => {
 
 <style scoped>
 table {
+  background-color: var(--sl-color-neutral-0);
+  border-collapse: collapse;
+  text-align: left;
+  width: 100%;
+}
+
+table thead {
+  background-color: var(--sl-color-neutral-300);
+}
+
+table td,
+table th {
+  border: 1px solid var(--sl-color-neutral-1000);
+  padding: var(--sl-spacing-medium);
+}
+
+table td:last-child {
+  padding: 8px;
+  text-align: center;
+}
+
+sl-icon:hover {
+  cursor: pointer;
+}
+
+/* table {
   border: 4px solid var(--sl-color-neutral-700);
   border-top: 0;
   border-collapse: collapse;
@@ -169,7 +226,7 @@ table td,
 table th {
   padding: 16px;
   width: fit-content;
-}
+} */
 
 .pagination-btn {
   align-items: center;

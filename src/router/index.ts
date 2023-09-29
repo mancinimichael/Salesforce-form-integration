@@ -10,8 +10,18 @@ const router = createRouter({
     },
     {
       path: '/tickets',
-      name: 'tickets',
-      component: () => import('@/views/TicketsView.vue')
+      children: [
+        {
+          path: '',
+          name: 'tickets',
+          component: () => import('@/views/TicketsView.vue')
+        },
+        {
+          path: ':id',
+          name: 'ticket',
+          component: () => import('@/views/TicketView.vue')
+        }
+      ]
     },
     {
       path: '/:catchAll(.*)',
