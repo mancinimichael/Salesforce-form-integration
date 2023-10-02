@@ -51,11 +51,13 @@ const filter = (item: FormItem, option: Option) => {
 
     <sl-select
       v-if="item.selector === 'option'"
+      v-model="store.form[item.id]"
       required
       :disabled="disabled(item)"
       :label="item.label"
       @sl-input="store.updateForm(item.id, $event.target.value)"
     >
+      <sl-option value="">---</sl-option>
       <sl-option
         v-for="option of item.options?.filter((option) => filter(item, option))"
         :key="option.id"

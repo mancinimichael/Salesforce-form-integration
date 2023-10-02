@@ -9,7 +9,7 @@ import {
   TIPOLOGY_ENDPOINT
 } from '@/constants'
 import { store } from '@/store'
-import type { ApiResponse, Form, FormItems, Values } from '@/types'
+import type { ApiResponse, Form, FormItems, FormKey, Values } from '@/types'
 import axios from 'axios'
 import { computed, ref, watchEffect } from 'vue'
 
@@ -156,6 +156,8 @@ const handleSubmit = async () => {
       return res.data.id
     })
     .catch(console.error)
+
+  Object.keys(form).forEach((key) => store.updateForm(key as FormKey, ''))
 
   if (fileList.value?.length === 0) return
 

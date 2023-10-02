@@ -120,6 +120,19 @@ const handleSubmit = async () => {
     .patch(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { Comments__c: comment.value }, { headers })
     .then((res) => res.data)
     .catch(console.error)
+
+  comment.value = ''
+
+  await axios
+    .get(QUERY_ENDPOINT, {
+      headers,
+      params: {
+        q: query.value.trim()
+      }
+    })
+    .then<Comment[]>((res) => res.data.records)
+    .then((res) => (comments.value = res))
+    .catch(console.error)
 }
 
 onMounted(async () => {
