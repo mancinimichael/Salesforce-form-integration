@@ -91,6 +91,8 @@ const query = computed(
 
 const tickets = ref<Response[]>([])
 
+const fileList = ref<FileList | null>(null)
+
 const router = useRouter()
 
 onMounted(async () => {
@@ -120,6 +122,36 @@ onMounted(async () => {
     .then((res) => (tickets.value = res.records))
     .catch(console.error)
 })
+
+const handleChange = (event: Event) => {
+  const { files } = event.target as HTMLInputElement
+  fileList.value = files
+}
+
+const handleSubmit = async (id: string) => {
+  if (fileList.value?.length === 0) return
+
+  const headers = {
+    Authorization: `${store.auth.bearer}`
+  }
+
+  const reader = new FileReader()
+  reader.readAsDataURL(fileList.value?.item(0) as Blob)
+  reader.onload = async () => {
+    const encodedFile = (reader.result as string).split(',')[1]
+    await axios
+      .post(
+        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+        {
+          ParentId: id,
+          Name: fileList.value?.item(0)?.name,
+          Body: encodedFile
+        },
+        { headers: headers }
+      )
+      .catch(console.error)
+  }
+}
 </script>
 
 <template>
@@ -130,6 +162,7 @@ onMounted(async () => {
           <th v-for="(field, index) of fields.map((field) => field.name)" :key="index">
             {{ field }}
           </th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -147,6 +180,18 @@ onMounted(async () => {
               name="info-circle"
               @click="router.push({ name: 'ticket', params: { id: ticket.Id } })"
             ></sl-icon>
+          </td>
+          <td>
+            <div :style="{ display: 'flex', alignItems: 'center', gap: '0.5rem' }">
+              <label for="file">Upload</label>
+              <input
+                id="file"
+                type="file"
+                :style="{ display: 'none' }"
+                @change="handleChange($event)"
+              />
+              <sl-button size="small" type="submit" variant="primary" @click="handleSubmit(ticket.Id)">Allega</sl-button>
+            </div>
           </td>
         </tr>
       </tbody>
