@@ -14,12 +14,12 @@ export const store = reactive<Store>({
   auth: {
     bearer: '',
     user: {
-      // contact: '',
-      // email: '',
-      id: ''
-      // phone: '',
-      // site: '',
-      // team: ''
+      contact: '',
+      email: '',
+      id: '',
+      phone: '',
+      site: '',
+      team: ''
     }
   },
   resetForm() {

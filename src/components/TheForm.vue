@@ -6,12 +6,13 @@ import {
   CASE_ENDPOINT,
   CATEGORY_ENDPOINT,
   SECTOR_ENDPOINT,
+  SPARTA_ENDPOINT,
   TIPOLOGY_ENDPOINT
 } from '@/constants'
 import { store } from '@/store'
 import type { ApiResponse, Form, FormItems, FormKey, Values } from '@/types'
 import axios from 'axios'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 
 type TheFormProps = {
   form: Form
@@ -110,6 +111,20 @@ watchEffect(async () => {
     .catch(console.error)
 })
 
+onMounted(async () => {
+  await axios
+    .post(SPARTA_ENDPOINT, { idSparta: [store.auth.user.id] })
+    .then((res) => res.data)
+    .then((res) => {
+      store.auth.user.contact = `${res.dipendenti[0].anagrafica.nome} ${res.dipendenti[0].anagrafica.cognome}`
+      ;(store.auth.user.email = res.dipendenti[0].anagrafica.email),
+        (store.auth.user.phone = res.dipendenti[0].anagrafica.numero_aziendale),
+        (store.auth.user.site = res.dipendenti[0].sede_operativa.nome_sede),
+        (store.auth.user.team = res.dipendenti[0].sede_operativa.team)
+    })
+    .catch(console.error)
+})
+
 const handleChange = (event: Event) => {
   const { files } = event.target as HTMLInputElement
   fileList.value = files
@@ -137,13 +152,12 @@ const handleSubmit = async () => {
     Tipology__c: elements.value
       .find((element) => element.id === 'tipology')
       ?.options?.find((option) => option.id === parseInt(form.tipology))?.value,
-    // Values obtained from OAuth2
-    Contact_Key__c: store.auth.user.id
-    // SuppliedEmail: store.auth.user.email,
-    // SuppliedName: store.auth.user.contact,
-    // SuppliedPhone: store.auth.user.phone,
-    // Web_Team__c: store.auth.user.team,
-    // Web_Site__c: store.auth.user.site
+    Contact_Key__c: store.auth.user.id,
+    SuppliedEmail: store.auth.user.email,
+    SuppliedName: store.auth.user.contact,
+    SuppliedPhone: store.auth.user.phone,
+    Web_Team__c: store.auth.user.team,
+    Web_Site__c: store.auth.user.site
   }
 
   const id = await axios

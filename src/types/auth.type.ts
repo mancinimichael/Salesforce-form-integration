@@ -4,10 +4,10 @@ export type Auth = {
 }
 
 type User = {
-  // contact: string
-  // email: string
+  contact: string
+  email: string
   id: string
-  // phone: string
-  // site: string
-  // team: string
+  phone: string
+  site: string
+  team: string
 }
