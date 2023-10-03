@@ -123,7 +123,7 @@ const handleSubmit = async () => {
   await axios
     .patch(
       `${CASE_INTERNAL_ENDPOINT}/${ticketId}`,
-      { Comments__c: comment.value },
+      { Comments__c: `[${store.auth.user.contact}] ${comment.value}` },
       { headers: store.auth.headers }
     )
     .then((res) => res.data)
