@@ -7,7 +7,7 @@ onMounted(() => initApp())
 </script>
 
 <template>
-  <template v-if="!!store.auth.user.id">
+  <template v-if="store.auth.user.id && store.auth.headers.Authorization">
     <main>
       <router-view></router-view>
     </main>

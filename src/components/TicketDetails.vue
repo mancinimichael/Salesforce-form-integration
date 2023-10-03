@@ -114,10 +114,12 @@ const query = ref<string>(`
 const dialog = ref<any>()
 
 const handleSubmit = async () => {
-  const headers = { Authorization: store.auth.bearer }
-
   await axios
-    .patch(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { Comments__c: comment.value }, { headers })
+    .patch(
+      `${CASE_INTERNAL_ENDPOINT}/${ticketId}`,
+      { Comments__c: comment.value },
+      { headers: store.auth.headers }
+    )
     .then((res) => res.data)
     .catch(console.error)
 
@@ -125,7 +127,7 @@ const handleSubmit = async () => {
 
   await axios
     .get(QUERY_ENDPOINT, {
-      headers,
+      headers: store.auth.headers,
       params: {
         q: query.value.trim()
       }
@@ -136,10 +138,8 @@ const handleSubmit = async () => {
 }
 
 onMounted(async () => {
-  const headers = { Authorization: store.auth.bearer }
-
   await axios
-    .get(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { headers })
+    .get(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { headers: store.auth.headers })
     .then<Details>((res) => res.data)
     .then((res) => {
       caseDetails.value.Application__c = { label: 'Application', value: res.Application__c ?? '-' }
@@ -189,7 +189,7 @@ onMounted(async () => {
 
   await axios
     .get(QUERY_ENDPOINT, {
-      headers,
+      headers: store.auth.headers,
       params: {
         q: query.value.trim()
       }

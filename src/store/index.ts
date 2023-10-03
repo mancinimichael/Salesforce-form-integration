@@ -12,7 +12,9 @@ export const store = reactive<Store>({
     tipology: ''
   },
   auth: {
-    bearer: '',
+    headers: {
+      Authorization: ''
+    },
     user: {
       contact: '',
       email: '',

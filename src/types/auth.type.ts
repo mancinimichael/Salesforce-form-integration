@@ -1,6 +1,10 @@
 export type Auth = {
-  bearer: string
+  headers: DefaultHeaders
   user: User
+}
+
+type DefaultHeaders = {
+  Authorization: string
 }
 
 type User = {

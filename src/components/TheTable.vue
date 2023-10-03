@@ -11,13 +11,9 @@ const offset = ref<number>(0)
 const pages = computed(() => Math.floor(count.value / LIMIT) + 1)
 
 watch(offset, async () => {
-  const headers = {
-    Authorization: `${store.auth.bearer}`
-  }
-
   await axios
     .get('https://covisian6.my.salesforce.com/services/data/v58.0/query/', {
-      headers,
+      headers: store.auth.headers,
       params: {
         q: query.value.trim()
       }
@@ -44,17 +40,9 @@ type Response = {
 
 const fields = [
   {
-    property: 'Id',
-    name: 'Id'
-  },
-  {
     property: 'Name',
     name: 'Ticket'
   },
-  // {
-  //   property: 'Contact_Key__c',
-  //   name: 'ID Sparta'
-  // },
   {
     property: 'Subject__c',
     name: 'Oggetto'
@@ -81,7 +69,7 @@ const countQuery = `
 
 const query = computed(
   () => `
-  SELECT ${fields.map((field) => field.property).join(', ')}
+  SELECT Id, ${fields.map((field) => field.property).join(', ')}
   FROM CaseInternal__c
   WHERE Contact_Key__c = '${store.auth.user.id}'
   LIMIT ${LIMIT}
@@ -91,18 +79,12 @@ const query = computed(
 
 const tickets = ref<Response[]>([])
 
-const fileList = ref<FileList | null>(null)
-
 const router = useRouter()
 
 onMounted(async () => {
-  const headers = {
-    Authorization: `${store.auth.bearer}`
-  }
-
   await axios
     .get('https://covisian6.my.salesforce.com/services/data/v58.0/query/', {
-      headers,
+      headers: store.auth.headers,
       params: {
         q: countQuery.trim()
       }
@@ -113,7 +95,7 @@ onMounted(async () => {
 
   await axios
     .get('https://covisian6.my.salesforce.com/services/data/v58.0/query/', {
-      headers,
+      headers: store.auth.headers,
       params: {
         q: query.value.trim()
       }
@@ -122,161 +104,88 @@ onMounted(async () => {
     .then((res) => (tickets.value = res.records))
     .catch(console.error)
 })
-
-const handleChange = (event: Event) => {
-  const { files } = event.target as HTMLInputElement
-  fileList.value = files
-}
-
-const handleSubmit = async (id: string) => {
-  if (fileList.value?.length === 0) return
-
-  const headers = {
-    Authorization: `${store.auth.bearer}`
-  }
-
-  const reader = new FileReader()
-  reader.readAsDataURL(fileList.value?.item(0) as Blob)
-  reader.onload = async () => {
-    const encodedFile = (reader.result as string).split(',')[1]
-    await axios
-      .post(
-        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
-        {
-          ParentId: id,
-          Name: fileList.value?.item(0)?.name,
-          Body: encodedFile
-        },
-        { headers: headers }
-      )
-      .catch(console.error)
-  }
-}
 </script>
 
 <template>
-  <div class="container">
+  <div v-if="tickets.length > 0" class="container">
     <table>
       <thead>
         <tr>
           <th v-for="(field, index) of fields.map((field) => field.name)" :key="index">
             {{ field }}
           </th>
-          <th></th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(ticket, index) of tickets" :key="index">
-          <td>{{ ticket.Id }}</td>
-          <td>{{ ticket.Name }}</td>
-          <!-- <td>{{ ticket.Contact_Key__c }}</td> -->
+          <td>
+            <span
+              class="table-link"
+              @click="router.push({ name: 'ticket', params: { id: ticket.Id } })"
+            >
+              {{ ticket.Name }}
+            </span>
+          </td>
           <td>{{ ticket.Subject__c }}</td>
           <td>{{ new Date(ticket.Date_Time_Opened__c).toDateString() }}</td>
           <td>{{ ticket.Status__c }}</td>
           <td>{{ ticket.Sector__c }}</td>
-          <td>
-            <sl-icon
-              name="info-circle"
-              @click="router.push({ name: 'ticket', params: { id: ticket.Id } })"
-            ></sl-icon>
-          </td>
-          <td>
-            <div :style="{ display: 'flex', alignItems: 'center', gap: '0.5rem' }">
-              <label for="file">Upload</label>
-              <input
-                id="file"
-                type="file"
-                :style="{ display: 'none' }"
-                @change="handleChange($event)"
-              />
-              <sl-button size="small" type="submit" variant="primary" @click="handleSubmit(ticket.Id)">Allega</sl-button>
-            </div>
-          </td>
         </tr>
       </tbody>
     </table>
 
-    <div class="pagination-btn">
-      <sl-button-group>
-        <sl-button
-          v-for="page of pages"
-          variant="primary"
-          :key="page"
-          @click="offset = (page - 1) * LIMIT"
-        >
-          {{ page }}
-        </sl-button>
-      </sl-button-group>
-    </div>
+    <sl-button-group>
+      <sl-button
+        v-for="page of pages"
+        size="small"
+        variant="primary"
+        :key="page"
+        @click="offset = (page - 1) * LIMIT"
+      >
+        {{ page }}
+      </sl-button>
+    </sl-button-group>
   </div>
 </template>
 
 <style scoped>
 table {
-  background-color: var(--sl-color-neutral-0);
-  border-collapse: collapse;
-  text-align: left;
-  width: 100%;
-}
-
-table thead {
-  background-color: var(--sl-color-neutral-300);
-}
-
-table td,
-table th {
-  border: 1px solid var(--sl-color-neutral-1000);
-  padding: var(--sl-spacing-medium);
-}
-
-table td:last-child {
-  padding: 8px;
-  text-align: center;
-}
-
-sl-icon:hover {
-  cursor: pointer;
-}
-
-/* table {
-  border: 4px solid var(--sl-color-neutral-700);
-  border-top: 0;
   border-collapse: collapse;
   margin: 0 auto;
-  scroll-behavior: smooth;
+  margin-bottom: var(--sl-spacing-x-small);
+  text-align: left;
   width: 100%;
 }
 
 table thead {
-  background-color: var(--sl-color-neutral-700);
-  color: var(--sl-color-neutral-0);
-  position: sticky;
-  top: 0;
-}
-
-table tr {
-  text-align: left;
-}
-
-table td:nth-child(odd) {
   background-color: var(--sl-color-neutral-100);
 }
 
-table td:nth-child(even) {
-  background-color: var(--sl-color-neutral-200);
+table tbody {
+  background-color: var(--sl-color-neutral-0);
 }
 
-table td,
-table th {
-  padding: 16px;
-  width: fit-content;
-} */
+table thead tr,
+table tbody tr {
+  border-bottom: 1px solid var(--sl-color-neutral-200);
+}
 
-.pagination-btn {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  margin-top: var(--sl-spacing-medium);
+table thead tr th,
+table tbody tr td {
+  padding: var(--sl-spacing-medium);
+}
+
+table thead tr th:first-child,
+table tbody tr td:first-child {
+  width: 128px;
+}
+
+.table-link {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.table-link:hover {
+  cursor: pointer;
 }
 </style>

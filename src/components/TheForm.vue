@@ -5,14 +5,14 @@ import {
   APPLICATION_ENDPOINT,
   CASE_ENDPOINT,
   CATEGORY_ENDPOINT,
+  FORM_ITEMS,
   SECTOR_ENDPOINT,
-  SPARTA_ENDPOINT,
   TIPOLOGY_ENDPOINT
 } from '@/constants'
 import { store } from '@/store'
 import type { ApiResponse, Form, FormItems, FormKey, Values } from '@/types'
 import axios from 'axios'
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 type TheFormProps = {
   form: Form
@@ -20,67 +20,20 @@ type TheFormProps = {
 
 const { form } = defineProps<TheFormProps>()
 
-const headers = computed(() => ({ Authorization: store.auth.bearer }))
+const elements = ref<FormItems>(FORM_ITEMS)
+const files = ref<FileList | null>()
+const toast = ref<InstanceType<typeof TheToast>>()
 
-const elements = ref<FormItems>([
-  {
-    id: 'subject',
-    label: 'Oggetto',
-    selector: 'input',
-    type: 'text'
-  },
-  {
-    id: 'description',
-    label: 'Descrizione',
-    selector: 'textarea'
-  },
-  {
-    id: 'application',
-    label: 'Applicazione',
-    selector: 'option',
-    options: []
-  },
-  {
-    id: 'sector',
-    label: 'Sezione',
-    selector: 'option',
-    options: []
-  },
-  {
-    id: 'priority',
-    label: 'Priorità',
-    selector: 'option',
-    options: [
-      { id: 0, value: 'Low' },
-      { id: 1, value: 'Medium' },
-      { id: 2, value: 'High' },
-      { id: 3, value: 'Critical' }
-    ]
-  },
-  {
-    id: 'tipology',
-    label: 'Tipologia',
-    selector: 'option',
-    options: []
-  },
-  {
-    id: 'category',
-    label: 'Categoria',
-    selector: 'option',
-    options: []
-  }
-])
-const fileList = ref<FileList | null>(null)
-const toast = ref<InstanceType<typeof TheToast> | null>(null)
+const sortedElements = computed(() => [...elements.value].sort((x, y) => x.order - y.order))
 
 watchEffect(async () => {
-  if (!store.auth.bearer) return
+  if (!store.auth.headers.Authorization) return
 
   await Promise.all([
-    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers: headers.value }),
-    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers: headers.value }),
-    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers: headers.value }),
-    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: headers.value })
+    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: store.auth.headers })
   ])
     .then<Values[]>((res) => res.map((r) => r.data.values))
     .then(([applications, categories, sectors, tipologies]) => {
@@ -110,25 +63,6 @@ watchEffect(async () => {
     })
     .catch(console.error)
 })
-
-onMounted(async () => {
-  await axios
-    .post(SPARTA_ENDPOINT, { idSparta: [store.auth.user.id] })
-    .then((res) => res.data)
-    .then((res) => {
-      store.auth.user.contact = `${res.dipendenti[0].anagrafica.nome} ${res.dipendenti[0].anagrafica.cognome}`
-      store.auth.user.email = res.dipendenti[0].anagrafica.email
-      store.auth.user.phone = res.dipendenti[0].anagrafica.numero_aziendale
-      store.auth.user.site = res.dipendenti[0].sede_operativa.nome_sede
-      store.auth.user.team = res.dipendenti[0].sede_operativa.team
-    })
-    .catch(console.error)
-})
-
-const handleChange = (event: Event) => {
-  const { files } = event.target as HTMLInputElement
-  fileList.value = files
-}
 
 const handleSubmit = async () => {
   if (!Object.values(form).every((value) => !!value)) return
@@ -161,7 +95,7 @@ const handleSubmit = async () => {
   }
 
   const id = await axios
-    .post<{ id: string }>(CASE_ENDPOINT, body, { headers: headers.value })
+    .post<{ id: string }>(CASE_ENDPOINT, body, { headers: store.auth.headers })
     .then((res) => {
       if (res.status === 201) {
         toast.value?.show('Ticket creato con successo')
@@ -173,10 +107,10 @@ const handleSubmit = async () => {
 
   Object.keys(form).forEach((key) => store.updateForm(key as FormKey, ''))
 
-  if (fileList.value?.length === 0) return
+  if (files.value?.length === 0) return
 
   const reader = new FileReader()
-  reader.readAsDataURL(fileList.value?.item(0) as Blob)
+  reader.readAsDataURL(files.value?.item(0) as Blob)
   reader.onload = async () => {
     const encodedFile = (reader.result as string).split(',')[1]
     await axios
@@ -184,10 +118,10 @@ const handleSubmit = async () => {
         'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
         {
           ParentId: id,
-          Name: fileList.value?.item(0)?.name,
+          Name: files.value?.item(0)?.name,
           Body: encodedFile
         },
-        { headers: headers.value }
+        { headers: store.auth.headers }
       )
       .catch(console.error)
   }
@@ -199,23 +133,36 @@ const handleSubmit = async () => {
     <form @submit.prevent="handleSubmit">
       <div class="row">
         <div class="col-2">
-          <div v-for="element of elements.slice(2, 7)" :key="element.id">
+          <div v-for="element of sortedElements.slice(2, 7)" :key="element.id">
             <FormItem :item="element" />
           </div>
 
           <div>
-            <input type="file" @change="handleChange($event)" />
+            <input type="file" @change="files = ($event.target as HTMLInputElement).files" />
           </div>
         </div>
 
         <div class="col-8">
-          <div v-for="element of elements.slice(0, 2)" :key="element.id">
+          <div v-for="element of sortedElements.slice(0, 2)" :key="element.id">
             <FormItem :item="element" />
           </div>
 
           <sl-button-group>
-            <sl-button type="submit" variant="success">Invia</sl-button>
-            <sl-button type="reset" variant="danger">Reset</sl-button>
+            <sl-button
+              type="submit"
+              variant="success"
+              :disabled="!Object.values(form).every((value) => !!value)"
+            >
+              Invia
+            </sl-button>
+            <sl-button
+              type="reset"
+              variant="danger"
+              :disabled="Object.values(form).every((value) => !value)"
+              @click="Object.keys(form).forEach((key) => store.updateForm(key as FormKey, ''))"
+            >
+              Reset
+            </sl-button>
           </sl-button-group>
         </div>
       </div>

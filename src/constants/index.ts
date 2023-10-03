@@ -1,3 +1,5 @@
+import type { FormItems } from '@/types'
+
 const SALESFORCE_ENDPOINT = import.meta.env.VITE_SALESFORCE_ENDPOINT
 
 export const SALESFORCE_CLIENT_ID = import.meta.env.VITE_SALESFORCE_CLIENT_ID
@@ -29,3 +31,60 @@ export const SECTOR_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Sector__c`
 export const TIPOLOGY_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Tipology__c`
 
 export const SPARTA_ENDPOINT = import.meta.env.VITE_SPARTA_ENDPOINT
+
+export const FORM_ITEMS: FormItems = [
+  {
+    id: 'subject',
+    label: 'Oggetto',
+    selector: 'input',
+    order: 0,
+    type: 'text'
+  },
+  {
+    id: 'description',
+    label: 'Descrizione',
+    selector: 'textarea',
+    order: 1
+  },
+  {
+    id: 'application',
+    label: 'Applicazione',
+    selector: 'option',
+    order: 2,
+    options: []
+  },
+  {
+    id: 'sector',
+    label: 'Sezione',
+    selector: 'option',
+    order: 3,
+    options: []
+  },
+
+  {
+    id: 'tipology',
+    label: 'Tipologia',
+    selector: 'option',
+    order: 4,
+    options: []
+  },
+  {
+    id: 'category',
+    label: 'Categoria',
+    selector: 'option',
+    order: 5,
+    options: []
+  },
+  {
+    id: 'priority',
+    label: 'Priorità',
+    selector: 'option',
+    order: 6,
+    options: [
+      { id: 0, value: 'Low' },
+      { id: 1, value: 'Medium' },
+      { id: 2, value: 'High' },
+      { id: 3, value: 'Critical' }
+    ]
+  }
+]

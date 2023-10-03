@@ -12,6 +12,7 @@ export type FormItem = {
   id: FormKey
   label: string
   selector: 'input' | 'textarea' | 'option'
+  order: number
   options?: Options
   type?: 'email' | 'text'
   value?: string

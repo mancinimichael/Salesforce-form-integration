@@ -4,7 +4,8 @@ import {
   SALESFORCE_GRANT_TYPE,
   SALESFORCE_OAUTH_ENDPOINT,
   SALESFORCE_PASSWORD,
-  SALESFORCE_USERNAME
+  SALESFORCE_USERNAME,
+  SPARTA_ENDPOINT
 } from '@/constants'
 import { store } from '@/store'
 import type { OAuthResponse } from '@/types'
@@ -23,7 +24,7 @@ export const initApp = async () => {
     .post<OAuthResponse>(SALESFORCE_OAUTH_ENDPOINT, formData)
     .then((res) => res.data)
     .then((res) => {
-      store.auth.bearer = `${res.token_type} ${res.access_token}`
+      store.auth.headers.Authorization = `${res.token_type} ${res.access_token}`
     })
     .catch(console.error)
 }
@@ -35,13 +36,15 @@ export const initSmart = async (event: any) => {
 
   store.auth.user.id = user.id
 
-  // const body = {
-  //   idSparta: [store.auth.user.id]
-  // }
-
-  // await axios
-  //   .post(SPARTA_ENDPOINT, body)
-  //   .then((res) => res.data)
-  //   .then(console.log)
-  //   .catch(console.error)
+  await axios
+    .post(SPARTA_ENDPOINT, { idSparta: [user.id] })
+    .then((res) => res.data)
+    .then((res) => {
+      store.auth.user.contact = `${res.dipendenti[0].anagrafica.nome} ${res.dipendenti[0].anagrafica.cognome}`
+      store.auth.user.email = res.dipendenti[0].anagrafica.email
+      store.auth.user.phone = res.dipendenti[0].anagrafica.numero_aziendale
+      store.auth.user.site = res.dipendenti[0].sede_operativa.nome_sede
+      store.auth.user.team = res.dipendenti[0].sede_operativa.team
+    })
+    .catch(console.error)
 }
