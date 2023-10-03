@@ -117,10 +117,10 @@ onMounted(async () => {
     .then((res) => res.data)
     .then((res) => {
       store.auth.user.contact = `${res.dipendenti[0].anagrafica.nome} ${res.dipendenti[0].anagrafica.cognome}`
-      ;(store.auth.user.email = res.dipendenti[0].anagrafica.email),
-        (store.auth.user.phone = res.dipendenti[0].anagrafica.numero_aziendale),
-        (store.auth.user.site = res.dipendenti[0].sede_operativa.nome_sede),
-        (store.auth.user.team = res.dipendenti[0].sede_operativa.team)
+      store.auth.user.email = res.dipendenti[0].anagrafica.email
+      store.auth.user.phone = res.dipendenti[0].anagrafica.numero_aziendale
+      store.auth.user.site = res.dipendenti[0].sede_operativa.nome_sede
+      store.auth.user.team = res.dipendenti[0].sede_operativa.team
     })
     .catch(console.error)
 })
