@@ -72,6 +72,7 @@ const query = computed(
   SELECT Id, ${fields.map((field) => field.property).join(', ')}
   FROM CaseInternal__c
   WHERE Contact_Key__c = '${store.auth.user.id}'
+  ORDER BY Date_Time_Opened__c DESC
   LIMIT ${LIMIT}
   OFFSET ${offset.value}
 `

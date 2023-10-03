@@ -5,6 +5,7 @@
   font-family: 'Montserrat', sans-serif;
   margin: 0;
   outline: none;
+  overflow: hidden;
   padding: 0;
   text-decoration: none;
 }
@@ -38,4 +39,14 @@ body,
 
 .wrapper {
   margin-bottom: 1rem;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }

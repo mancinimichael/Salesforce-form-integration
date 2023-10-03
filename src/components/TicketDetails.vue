@@ -4,7 +4,9 @@ import { store } from '@/store'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 
-type TicketDetailsProps = { ticketId: string }
+type TicketDetailsProps = {
+  ticketId: string
+}
 
 type Case = {
   Name: DetailsInfo
@@ -113,6 +115,10 @@ const query = ref<string>(`
 
 const dialog = ref<any>()
 
+const generalDialog = ref<any>()
+const caseDialog = ref<any>()
+const statusDialog = ref<any>()
+
 const handleSubmit = async () => {
   await axios
     .patch(
@@ -138,6 +144,9 @@ const handleSubmit = async () => {
 }
 
 onMounted(async () => {
+  generalDialog.value.show()
+  caseDialog.value.show()
+
   await axios
     .get(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { headers: store.auth.headers })
     .then<Details>((res) => res.data)
@@ -202,180 +211,207 @@ onMounted(async () => {
 
 <template>
   <div class="container">
-    <sl-tab-group>
-      <sl-tab slot="nav" panel="general">General</sl-tab>
-      <sl-tab slot="nav" panel="case">Case</sl-tab>
-      <sl-tab slot="nav" panel="status">Status</sl-tab>
+    <div class="row">
+      <div class="col-5">
+        <sl-details
+          ref="generalDialog"
+          summary="General"
+          @sl-show="statusDialog.hide()"
+          @sl-hide="statusDialog.show()"
+        >
+          <div class="row">
+            <div class="col-5">
+              <sl-input
+                v-model="generalDetails.SuppliedName__c.value"
+                :label="generalDetails.SuppliedName__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.WebEmail__c.value"
+                :label="generalDetails.WebEmail__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.SuppliedPhone__c.value"
+                :label="generalDetails.SuppliedPhone__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Web_Site__c.value"
+                :label="generalDetails.Web_Site__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Web_Team__c.value"
+                :label="generalDetails.Web_Team__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Subject__c.value"
+                :label="generalDetails.Subject__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Note__c.value"
+                :label="generalDetails.Note__c.label"
+                disabled
+                filled
+              ></sl-input>
+            </div>
 
-      <sl-tab-panel name="general">
-        <div class="row">
-          <div class="col-5">
-            <sl-input
-              v-model="generalDetails.SuppliedName__c.value"
-              :label="generalDetails.SuppliedName__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.WebEmail__c.value"
-              :label="generalDetails.WebEmail__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.SuppliedPhone__c.value"
-              :label="generalDetails.SuppliedPhone__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Web_Site__c.value"
-              :label="generalDetails.Web_Site__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Web_Team__c.value"
-              :label="generalDetails.Web_Team__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Subject__c.value"
-              :label="generalDetails.Subject__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Note__c.value"
-              :label="generalDetails.Note__c.label"
-              disabled
-              filled
-            ></sl-input>
+            <div class="col-5">
+              <sl-input
+                v-model="generalDetails.Date_Time_Opened__c.value"
+                :label="generalDetails.Date_Time_Opened__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Date_Time_Closed__c.value"
+                :label="generalDetails.Date_Time_Closed__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Contact__c.value"
+                :label="generalDetails.Contact__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.Contact_Key__c.value"
+                :label="generalDetails.Contact_Key__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="generalDetails.CaseInternalLook__c.value"
+                :label="generalDetails.CaseInternalLook__c.label"
+                disabled
+                filled
+              ></sl-input>
+            </div>
           </div>
-          <div class="col-5">
-            <sl-input
-              v-model="generalDetails.Date_Time_Opened__c.value"
-              :label="generalDetails.Date_Time_Opened__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Date_Time_Closed__c.value"
-              :label="generalDetails.Date_Time_Closed__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Contact__c.value"
-              :label="generalDetails.Contact__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.Contact_Key__c.value"
-              :label="generalDetails.Contact_Key__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="generalDetails.CaseInternalLook__c.value"
-              :label="generalDetails.CaseInternalLook__c.label"
-              disabled
-              filled
-            ></sl-input>
+        </sl-details>
+
+        <sl-details
+          ref="statusDialog"
+          summary="Status"
+          @sl-show="generalDialog.hide()"
+          @sl-hide="generalDialog.show()"
+        >
+          <div class="row">
+            <div class="col-5">
+              <sl-input
+                v-model="caseDetails.Name.value"
+                :label="caseDetails.Name.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="caseDetails.Origin__c.value"
+                :label="caseDetails.Origin__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="caseDetails.Application__c.value"
+                :label="caseDetails.Application__c.label"
+                disabled
+                filled
+              ></sl-input>
+            </div>
+            <div class="col-5">
+              <sl-input
+                v-model="caseDetails.Sector__c.value"
+                :label="caseDetails.Sector__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="caseDetails.Type__c.value"
+                :label="caseDetails.Type__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="caseDetails.Category__c.value"
+                :label="caseDetails.Category__c.label"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-model="caseDetails.Reason__c.value"
+                :label="caseDetails.Reason__c.label"
+                disabled
+                filled
+              ></sl-input>
+            </div>
           </div>
-        </div>
-      </sl-tab-panel>
-      <sl-tab-panel name="case">
-        <div class="row">
-          <div class="col-5">
-            <sl-input
-              v-model="caseDetails.Name.value"
-              :label="caseDetails.Name.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="caseDetails.Origin__c.value"
-              :label="caseDetails.Origin__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="caseDetails.Application__c.value"
-              :label="caseDetails.Application__c.label"
-              disabled
-              filled
-            ></sl-input>
-          </div>
-          <div class="col-5">
-            <sl-input
-              v-model="caseDetails.Sector__c.value"
-              :label="caseDetails.Sector__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="caseDetails.Type__c.value"
-              :label="caseDetails.Type__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="caseDetails.Category__c.value"
-              :label="caseDetails.Category__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-input
-              v-model="caseDetails.Reason__c.value"
-              :label="caseDetails.Reason__c.label"
-              disabled
-              filled
-            ></sl-input>
-          </div>
-        </div>
-      </sl-tab-panel>
-      <sl-tab-panel name="status">
-        <div class="row">
-          <div class="col-5">
-            <sl-input
-              v-model="statusDetails.Status__c.value"
-              :label="statusDetails.Status__c.label"
-              disabled
-              filled
-            ></sl-input>
-          </div>
-          <div class="col-5">
-            <sl-input
-              v-model="statusDetails.Comments__c.value"
-              :label="statusDetails.Comments__c.label"
-              disabled
-              filled
-            ></sl-input>
-            <sl-button @click="dialog.show()">Visualizza tutti i commenti</sl-button>
-            <sl-textarea v-model="comment" rows="15" label="Aggiungi commento"></sl-textarea>
-            <sl-button type="submit" variant="primary" @click="handleSubmit" :disabled="!comment">
+        </sl-details>
+      </div>
+
+      <div class="col-5">
+        <sl-details ref="caseDialog" summary="Case">
+          <sl-input
+            v-model="statusDetails.Status__c.value"
+            :label="statusDetails.Status__c.label"
+            disabled
+            filled
+          ></sl-input>
+
+          <sl-textarea
+            v-model="comment"
+            resize="none"
+            rows="15"
+            label="Aggiungi commento"
+          ></sl-textarea>
+          <div class="btn-container">
+            <sl-button
+              type="submit"
+              variant="primary"
+              @click="handleSubmit"
+              :disabled="!comment.trim()"
+            >
               Aggiungi
+            </sl-button>
+            <sl-button variant="default" @click="dialog.show()">
+              Visualizza tutti i commenti
             </sl-button>
 
             <Transition>
-              <sl-dialog label="Commenti" ref="dialog">
-                <div v-for="(comment, index) of comments" class="dialog-container" :key="index">
-                  <span>
-                    {{ comment.Comments__c }}
-                  </span>
-                  <span>
-                    {{ comment.Status__c }}
-                  </span>
-                </div>
+              <sl-dialog
+                ref="dialog"
+                style="--width: 50vw"
+                :label="`Commenti (${comments.length})`"
+              >
+                <template v-if="comments.length > 0">
+                  <div v-for="(comment, index) of comments" class="dialog-container" :key="index">
+                    <div class="dialog">
+                      <span>Commento:</span>
+                      <span>
+                        {{ comment.Comments__c }}
+                      </span>
+                    </div>
+                    <div class="dialog">
+                      <span>Stato:</span>
+                      <span>{{ comment.Status__c }} </span>
+                    </div>
+                  </div>
+                </template>
+                <span v-else>Nessun commento.</span>
               </sl-dialog>
             </Transition>
           </div>
-        </div>
-      </sl-tab-panel>
-    </sl-tab-group>
+        </sl-details>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -384,22 +420,34 @@ sl-button,
 sl-input {
   margin-bottom: var(--sl-spacing-medium);
 }
+
+sl-details,
 sl-textarea {
   margin-bottom: var(--sl-spacing-x-small);
 }
 
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
+.btn-container {
+  display: flex;
+  justify-content: space-between;
 }
 
 .dialog-container {
+  border-bottom: 1px solid var(--sl-color-neutral-200);
   display: flex;
   justify-content: space-between;
+  margin-bottom: var(--sl-spacing-medium);
+  padding-bottom: var(--sl-spacing-3x-small);
+}
+
+.dialog-container .dialog {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-container .dialog span:first-child {
+  color: var(--sl-color-neutral-500);
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 700;
 }
 </style>
