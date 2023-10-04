@@ -12,7 +12,7 @@ import {
 import { store } from '@/store'
 import type { ApiResponse, Form, FormItems, FormKey, Values } from '@/types'
 import axios from 'axios'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, onUnmounted, ref, watchEffect } from 'vue'
 
 type TheFormProps = {
   form: Form
@@ -59,12 +59,12 @@ const handleSubmit = async () => {
     .post<{ id: string }>(CASE_ENDPOINT, body, { headers: store.auth.headers })
     .then((res) => {
       if (res.status === 201) {
-        toast.value?.show('Ticket creato con successo', 'success')
+        toast.value?.show('Ticket creato con successo.', 'success')
       }
 
       return res.data.id
     })
-    .catch(console.error)
+    .catch(() => toast.value?.show('Impossibile creare il ticket.', 'danger'))
 
   if (!id) return
 
@@ -82,29 +82,45 @@ watchEffect(async () => {
   ])
     .then<Values[]>((res) => res.map((r) => r.data.values))
     .then(([applications, categories, sectors, tipologies]) => {
-      applications.forEach((application, index) => {
-        elements.value
-          .find((element) => element.id === 'application')
-          ?.options?.push({ id: index, value: application.value })
-      })
+      if (elements.value.find((element) => element.id === 'application')?.options?.length === 0) {
+        applications.forEach((application, index) => {
+          elements.value
+            .find((element) => element.id === 'application')
+            ?.options?.push({ id: index, value: application.value })
+        })
+      }
 
-      categories.forEach((category, index) => {
-        elements.value
-          .find((element) => element.id === 'category')
-          ?.options?.push({ id: index, value: category.value, sectorId: `${category.validFor[0]}` })
-      })
+      if (elements.value.find((element) => element.id === 'category')?.options?.length === 0) {
+        categories.forEach((category, index) => {
+          elements.value
+            .find((element) => element.id === 'category')
+            ?.options?.push({
+              id: index,
+              value: category.value,
+              sectorId: `${category.validFor[0]}`
+            })
+        })
+      }
 
-      sectors.forEach((sector, index) => {
-        elements.value
-          .find((element) => element.id === 'sector')
-          ?.options?.push({ id: index, value: sector.value })
-      })
+      if (elements.value.find((element) => element.id === 'sector')?.options?.length === 0) {
+        sectors.forEach((sector, index) => {
+          elements.value
+            .find((element) => element.id === 'sector')
+            ?.options?.push({ id: index, value: sector.value })
+        })
+      }
 
-      tipologies.forEach((tipology, index) => {
-        elements.value
-          .find((element) => element.id === 'tipology')
-          ?.options?.push({ id: index, value: tipology.value, sectorId: `${tipology.validFor[0]}` })
-      })
+      if (elements.value.find((element) => element.id === 'tipology')?.options?.length === 0) {
+        tipologies.forEach((tipology, index) => {
+          elements.value
+            .find((element) => element.id === 'tipology')
+            ?.options?.push({
+              id: index,
+              value: tipology.value,
+              sectorId: `${tipology.validFor[0]}`
+            })
+        })
+      }
     })
     .catch(console.error)
 })
