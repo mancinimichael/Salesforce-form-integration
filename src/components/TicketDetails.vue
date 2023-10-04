@@ -377,6 +377,8 @@ const handleSubmitFile = async () => {
                 disabled
                 filled
               ></sl-input>
+              <sl-input :value="owner" disabled filled label="Owner"></sl-input>
+              <sl-input :value="queue" disabled filled label="Queue"></sl-input>
             </div>
           </div>
         </sl-details>
