@@ -286,7 +286,15 @@ const handleSubmitFile = async () => {
           <div class="row">
             <div class="col-5">
               <sl-input
-                v-for="(detail, index) of Object.values(generalDetails).slice(0, 5)"
+                v-for="(detail, index) of Object.values(generalDetails).slice(0, 3)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-for="(detail, index) of Object.values(generalDetails).slice(5, 6)"
                 :key="index"
                 :label="detail.label"
                 :value="detail.value"
@@ -296,7 +304,7 @@ const handleSubmitFile = async () => {
             </div>
             <div class="col-5">
               <sl-input
-                v-for="(detail, index) of Object.values(generalDetails).slice(5)"
+                v-for="(detail, index) of Object.values(generalDetails).slice(6)"
                 :key="index"
                 :label="detail.label"
                 :value="detail.value"
@@ -304,6 +312,26 @@ const handleSubmitFile = async () => {
                 filled
               ></sl-input>
             </div>
+          </div>
+          <div
+            v-for="(detail, index) of Object.values(generalDetails).slice(3, 5).reverse()"
+            :key="index"
+            class="row"
+          >
+            <sl-input
+              v-if="detail.label === 'Subject'"
+              :label="detail.label"
+              :value="detail.value"
+              disabled
+              filled
+            ></sl-input>
+            <sl-textarea
+              v-if="detail.label === 'Note'"
+              :label="detail.label"
+              :value="detail.value"
+              disabled
+              filled
+            ></sl-textarea>
           </div>
         </sl-details>
 
