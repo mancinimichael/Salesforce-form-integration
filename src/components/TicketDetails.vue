@@ -316,7 +316,6 @@ const handleSubmitFile = async () => {
           <div
             v-for="(detail, index) of Object.values(generalDetails).slice(3, 5).reverse()"
             :key="index"
-            class="row"
           >
             <sl-input
               v-if="detail.label === 'Subject'"
@@ -331,6 +330,7 @@ const handleSubmitFile = async () => {
               :value="detail.value"
               disabled
               filled
+              resize="auto"
             ></sl-textarea>
           </div>
         </sl-details>
@@ -344,7 +344,23 @@ const handleSubmitFile = async () => {
           <div class="row">
             <div class="col-5">
               <sl-input
-                v-for="(detail, index) of Object.values(caseDetails).slice(0, 4)"
+                v-for="(detail, index) of Object.values(caseDetails).slice(0, 1)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-for="(detail, index) of Object.values(caseDetails).slice(5, 7)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
+                disabled
+                filled
+              ></sl-input>
+              <sl-input
+                v-for="(detail, index) of Object.values(caseDetails).slice(1, 2)"
                 :key="index"
                 :label="detail.label"
                 :value="detail.value"
@@ -354,7 +370,7 @@ const handleSubmitFile = async () => {
             </div>
             <div class="col-5">
               <sl-input
-                v-for="(detail, index) of Object.values(caseDetails).slice(4)"
+                v-for="(detail, index) of Object.values(caseDetails).slice(2, 5)"
                 :key="index"
                 :label="detail.label"
                 :value="detail.value"
