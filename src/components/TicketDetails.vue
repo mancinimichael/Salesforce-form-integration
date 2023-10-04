@@ -24,9 +24,9 @@ type General = {
   Note__c: DetailsInfo
   Date_Time_Opened__c: DetailsInfo
   Date_Time_Closed__c: DetailsInfo
-  Contact__c: DetailsInfo
+  // Contact__c: DetailsInfo
   Contact_Key__c: DetailsInfo
-  CaseInternalLook__c: DetailsInfo
+  // CaseInternalLook__c: DetailsInfo
   SuppliedName__c: DetailsInfo
   SuppliedPhone__c: DetailsInfo
   WebEmail__c: DetailsInfo
@@ -88,8 +88,8 @@ const caseDetails = ref<Case>({
   Type__c: { label: '', value: '' }
 })
 const generalDetails = ref<General>({
-  CaseInternalLook__c: { label: '', value: '' },
-  Contact__c: { label: '', value: '' },
+  // CaseInternalLook__c: { label: '', value: '' },
+  // Contact__c: { label: '', value: '' },
   Contact_Key__c: { label: '', value: '' },
   Date_Time_Closed__c: { label: '', value: '' },
   Date_Time_Opened__c: { label: '', value: '' },
@@ -164,11 +164,11 @@ onMounted(async () => {
       caseDetails.value.Sector__c = { label: 'Sector', value: res.Sector__c ?? '-' }
       caseDetails.value.Type__c = { label: 'Type', value: res.Type__c ?? '-' }
 
-      generalDetails.value.CaseInternalLook__c = {
-        label: 'Case Internal Look',
-        value: res.CaseInternalLook__c ?? '-'
-      }
-      generalDetails.value.Contact__c = { label: 'Contact', value: res.Contact__c ?? '-' }
+      // generalDetails.value.CaseInternalLook__c = {
+      //   label: 'Case Internal Look',
+      //   value: res.CaseInternalLook__c ?? '-'
+      // }
+      // generalDetails.value.Contact__c = { label: 'Contact', value: res.Contact__c ?? '-' }
       generalDetails.value.Contact_Key__c = {
         label: 'Contact Key',
         value: res.Contact_Key__c ?? '-'
@@ -286,7 +286,7 @@ const handleSubmitFile = async () => {
           <div class="row">
             <div class="col-5">
               <sl-input
-                v-for="(detail, index) of Object.values(generalDetails).slice(0, 6)"
+                v-for="(detail, index) of Object.values(generalDetails).slice(0, 5)"
                 :key="index"
                 :label="detail.label"
                 :value="detail.value"
@@ -296,7 +296,7 @@ const handleSubmitFile = async () => {
             </div>
             <div class="col-5">
               <sl-input
-                v-for="(detail, index) of Object.values(generalDetails).slice(6, 12)"
+                v-for="(detail, index) of Object.values(generalDetails).slice(5)"
                 :key="index"
                 :label="detail.label"
                 :value="detail.value"

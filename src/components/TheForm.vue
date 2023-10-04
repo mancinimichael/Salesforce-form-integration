@@ -59,7 +59,7 @@ const handleSubmit = async () => {
     .post<{ id: string }>(CASE_ENDPOINT, body, { headers: store.auth.headers })
     .then((res) => {
       if (res.status === 201) {
-        toast.value?.show('Ticket creato con successo')
+        toast.value?.show('Ticket creato con successo', 'success')
       }
 
       return res.data.id
