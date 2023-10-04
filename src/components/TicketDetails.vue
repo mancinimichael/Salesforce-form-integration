@@ -215,13 +215,13 @@ onMounted(async () => {
   await axios
     .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: queryOwner.value.trim() } })
     .then((res) => res.data.records)
-    .then((res) => (owner.value = res[0] ?? '-'))
+    .then((res) => (owner.value = res[0].Name ?? '-'))
     .catch(console.error)
 
   await axios
     .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: queryQueue.value.trim() } })
     .then((res) => res.data.records)
-    .then((res) => (queue.value = res[0].Name))
+    .then((res) => (queue.value = res[0].Name ?? '-'))
     .catch(console.error)
 })
 
