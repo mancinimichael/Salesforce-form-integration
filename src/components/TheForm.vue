@@ -21,48 +21,9 @@ type TheFormProps = {
 const { form } = defineProps<TheFormProps>()
 
 const elements = ref<FormItems>(FORM_ITEMS)
-const files = ref<FileList | null>()
 const toast = ref<InstanceType<typeof TheToast>>()
 
 const sortedElements = computed(() => [...elements.value].sort((x, y) => x.order - y.order))
-
-watchEffect(async () => {
-  if (!store.auth.headers.Authorization) return
-
-  await Promise.all([
-    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers: store.auth.headers }),
-    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers: store.auth.headers }),
-    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers: store.auth.headers }),
-    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: store.auth.headers })
-  ])
-    .then<Values[]>((res) => res.map((r) => r.data.values))
-    .then(([applications, categories, sectors, tipologies]) => {
-      applications.forEach((application, index) => {
-        elements.value
-          .find((element) => element.id === 'application')
-          ?.options?.push({ id: index, value: application.value })
-      })
-
-      categories.forEach((category, index) => {
-        elements.value
-          .find((element) => element.id === 'category')
-          ?.options?.push({ id: index, value: category.value, sectorId: `${category.validFor[0]}` })
-      })
-
-      sectors.forEach((sector, index) => {
-        elements.value
-          .find((element) => element.id === 'sector')
-          ?.options?.push({ id: index, value: sector.value })
-      })
-
-      tipologies.forEach((tipology, index) => {
-        elements.value
-          .find((element) => element.id === 'tipology')
-          ?.options?.push({ id: index, value: tipology.value, sectorId: `${tipology.validFor[0]}` })
-      })
-    })
-    .catch(console.error)
-})
 
 const handleSubmit = async () => {
   if (!Object.values(form).every((value) => !!value)) return
@@ -105,27 +66,67 @@ const handleSubmit = async () => {
     })
     .catch(console.error)
 
+  if (!id) return
+
   Object.keys(form).forEach((key) => store.updateForm(key as FormKey, ''))
 
-  if (files.value?.length === 0) return
+  // if (files.value?.length === 0) return
 
-  const reader = new FileReader()
-  reader.readAsDataURL(files.value?.item(0) as Blob)
-  reader.onload = async () => {
-    const encodedFile = (reader.result as string).split(',')[1]
-    await axios
-      .post(
-        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
-        {
-          ParentId: id,
-          Name: files.value?.item(0)?.name,
-          Body: encodedFile
-        },
-        { headers: store.auth.headers }
-      )
-      .catch(console.error)
-  }
+  // const reader = new FileReader()
+  // reader.readAsDataURL(files.value?.item(0) as Blob)
+  // reader.onload = async () => {
+  //   const encodedFile = (reader.result as string).split(',')[1]
+  //   await axios
+  //     .post(
+  //       'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+  //       {
+  //         ParentId: id,
+  //         Name: files.value?.item(0)?.name,
+  //         Body: encodedFile
+  //       },
+  //       { headers: store.auth.headers }
+  //     )
+  //     .catch(console.error)
+  // }
 }
+
+watchEffect(async () => {
+  if (!store.auth.headers.Authorization) return
+
+  await Promise.all([
+    axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: store.auth.headers })
+  ])
+    .then<Values[]>((res) => res.map((r) => r.data.values))
+    .then(([applications, categories, sectors, tipologies]) => {
+      applications.forEach((application, index) => {
+        elements.value
+          .find((element) => element.id === 'application')
+          ?.options?.push({ id: index, value: application.value })
+      })
+
+      categories.forEach((category, index) => {
+        elements.value
+          .find((element) => element.id === 'category')
+          ?.options?.push({ id: index, value: category.value, sectorId: `${category.validFor[0]}` })
+      })
+
+      sectors.forEach((sector, index) => {
+        elements.value
+          .find((element) => element.id === 'sector')
+          ?.options?.push({ id: index, value: sector.value })
+      })
+
+      tipologies.forEach((tipology, index) => {
+        elements.value
+          .find((element) => element.id === 'tipology')
+          ?.options?.push({ id: index, value: tipology.value, sectorId: `${tipology.validFor[0]}` })
+      })
+    })
+    .catch(console.error)
+})
 </script>
 
 <template>
@@ -135,10 +136,6 @@ const handleSubmit = async () => {
         <div class="col-2">
           <div v-for="element of sortedElements.slice(2, 7)" :key="element.id">
             <FormItem :item="element" />
-          </div>
-
-          <div>
-            <input type="file" @change="files = ($event.target as HTMLInputElement).files" />
           </div>
         </div>
 

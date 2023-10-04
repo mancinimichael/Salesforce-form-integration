@@ -3,6 +3,7 @@ import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 type TicketDetailsProps = {
   ticketId: string
@@ -115,33 +116,13 @@ const query = ref<string>(`
 
 const dialog = ref<any>()
 
-const generalDialog = ref<any>()
 const caseDialog = ref<any>()
+const files = ref<FileList | null>()
+const inputFiles = ref<any>()
+const generalDialog = ref<any>()
 const statusDialog = ref<any>()
 
-const handleSubmit = async () => {
-  await axios
-    .patch(
-      `${CASE_INTERNAL_ENDPOINT}/${ticketId}`,
-      { Comments__c: `[${store.auth.user.contact}] ${comment.value}` },
-      { headers: store.auth.headers }
-    )
-    .then((res) => res.data)
-    .catch(console.error)
-
-  comment.value = ''
-
-  await axios
-    .get(QUERY_ENDPOINT, {
-      headers: store.auth.headers,
-      params: {
-        q: query.value.trim()
-      }
-    })
-    .then<Comment[]>((res) => res.data.records)
-    .then((res) => (comments.value = res))
-    .catch(console.error)
-}
+const route = useRoute()
 
 onMounted(async () => {
   generalDialog.value.show()
@@ -207,6 +188,53 @@ onMounted(async () => {
     .then((res) => (comments.value = res))
     .catch(console.error)
 })
+
+const handleSubmit = async () => {
+  await axios
+    .patch(
+      `${CASE_INTERNAL_ENDPOINT}/${ticketId}`,
+      { Comments__c: `[${store.auth.user.contact}] ${comment.value}` },
+      { headers: store.auth.headers }
+    )
+    .then((res) => res.data)
+    .catch(console.error)
+
+  comment.value = ''
+
+  await axios
+    .get(QUERY_ENDPOINT, {
+      headers: store.auth.headers,
+      params: {
+        q: query.value.trim()
+      }
+    })
+    .then<Comment[]>((res) => res.data.records)
+    .then((res) => (comments.value = res))
+    .catch(console.error)
+}
+
+const handleSubmitFile = async () => {
+  const reader = new FileReader()
+  reader.readAsDataURL(files.value?.item(0) as Blob)
+  reader.onload = async () => {
+    const encodedFile = (reader.result as string).split(',')[1]
+    await axios
+      .post(
+        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+        {
+          ParentId: route.params.id,
+          Name: files.value?.item(0)?.name,
+          Body: encodedFile
+        },
+        { headers: store.auth.headers }
+      )
+      .then(() => {
+        files.value = null
+        inputFiles.value.value = null
+      })
+      .catch(console.error)
+  }
+}
 </script>
 
 <template>
@@ -359,12 +387,22 @@ onMounted(async () => {
 
       <div class="col-5">
         <sl-details ref="caseDialog" summary="Case">
-          <sl-input
-            v-model="statusDetails.Status__c.value"
-            :label="statusDetails.Status__c.label"
-            disabled
-            filled
-          ></sl-input>
+          <div class="wrapper">
+            <input
+              ref="inputFiles"
+              type="file"
+              @change="files = ($event.target as HTMLInputElement).files"
+            />
+            <sl-button
+              size="small"
+              type="submit"
+              variant="success"
+              :disabled="files?.length === 0"
+              @click="handleSubmitFile"
+            >
+              Allega
+            </sl-button>
+          </div>
 
           <sl-textarea
             v-model="comment"
@@ -401,7 +439,7 @@ onMounted(async () => {
                     </div>
                     <div class="dialog">
                       <span>Stato:</span>
-                      <span>{{ comment.Status__c }} </span>
+                      <span>{{ comment.Status__c }}</span>
                     </div>
                   </div>
                 </template>
@@ -449,5 +487,11 @@ sl-textarea {
   font-size: 12px;
   font-style: italic;
   font-weight: 700;
+}
+
+.wrapper {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
 }
 </style>
