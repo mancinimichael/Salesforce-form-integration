@@ -69,25 +69,6 @@ const handleSubmit = async () => {
   if (!id) return
 
   Object.keys(form).forEach((key) => store.updateForm(key as FormKey, ''))
-
-  // if (files.value?.length === 0) return
-
-  // const reader = new FileReader()
-  // reader.readAsDataURL(files.value?.item(0) as Blob)
-  // reader.onload = async () => {
-  //   const encodedFile = (reader.result as string).split(',')[1]
-  //   await axios
-  //     .post(
-  //       'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
-  //       {
-  //         ParentId: id,
-  //         Name: files.value?.item(0)?.name,
-  //         Body: encodedFile
-  //       },
-  //       { headers: store.auth.headers }
-  //     )
-  //     .catch(console.error)
-  // }
 }
 
 watchEffect(async () => {

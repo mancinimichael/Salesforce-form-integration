@@ -2,7 +2,7 @@
 import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 type TicketDetailsProps = {
@@ -56,6 +56,7 @@ type Details = {
   Web_Team__c: string
   Name: string
   Origin__c: string
+  OwnerId: string
   Application__c: string
   Sector__c: string
   Type__c: string
@@ -76,6 +77,7 @@ type Comment = {
 }
 
 const { ticketId } = defineProps<TicketDetailsProps>()
+
 const caseDetails = ref<Case>({
   Application__c: { label: '', value: '' },
   Category__c: { label: '', value: '' },
@@ -122,6 +124,26 @@ const inputFiles = ref<any>()
 const generalDialog = ref<any>()
 const statusDialog = ref<any>()
 
+const ownerId = ref<string>('')
+const owner = ref<any>()
+const queue = ref<any>()
+
+const queryOwner = computed(
+  () => `
+  SELECT User.Id, User.Name
+  FROM User
+  WHERE User.Id = '${ownerId.value}'
+`
+)
+
+const queryQueue = computed(
+  () => `
+    SELECT Id, Name
+    FROM Group
+    WHERE Type = 'Queue' AND Id = '${ownerId.value}'
+  `
+)
+
 const route = useRoute()
 
 onMounted(async () => {
@@ -132,6 +154,8 @@ onMounted(async () => {
     .get(`${CASE_INTERNAL_ENDPOINT}/${ticketId}`, { headers: store.auth.headers })
     .then<Details>((res) => res.data)
     .then((res) => {
+      ownerId.value = res.OwnerId
+
       caseDetails.value.Application__c = { label: 'Application', value: res.Application__c ?? '-' }
       caseDetails.value.Category__c = { label: 'Category', value: res.Category__c ?? '-' }
       caseDetails.value.Name = { label: 'Case Number', value: res.Name ?? '-' }
@@ -186,6 +210,18 @@ onMounted(async () => {
     })
     .then<Comment[]>((res) => res.data.records)
     .then((res) => (comments.value = res))
+    .catch(console.error)
+
+  await axios
+    .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: queryOwner.value.trim() } })
+    .then((res) => res.data.records)
+    .then((res) => (owner.value = res[0] ?? '-'))
+    .catch(console.error)
+
+  await axios
+    .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: queryQueue.value.trim() } })
+    .then((res) => res.data.records)
+    .then((res) => (queue.value = res[0].Name))
     .catch(console.error)
 })
 
@@ -324,6 +360,8 @@ const handleSubmitFile = async () => {
                 disabled
                 filled
               ></sl-input>
+              <sl-input v-model="owner" disabled filled label="Owner"></sl-input>
+              <sl-input v-model="queue" disabled filled label="Queue"></sl-input>
             </div>
           </div>
         </sl-details>
@@ -397,7 +435,7 @@ const handleSubmitFile = async () => {
               size="small"
               type="submit"
               variant="success"
-              :disabled="files?.length === 0"
+              :disabled="files?.length === 0 || !files"
               @click="handleSubmitFile"
             >
               Allega
