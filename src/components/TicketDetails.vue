@@ -286,82 +286,23 @@ const handleSubmitFile = async () => {
           <div class="row">
             <div class="col-5">
               <sl-input
-                v-model="generalDetails.SuppliedName__c.value"
-                :label="generalDetails.SuppliedName__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.WebEmail__c.value"
-                :label="generalDetails.WebEmail__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.SuppliedPhone__c.value"
-                :label="generalDetails.SuppliedPhone__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.Web_Site__c.value"
-                :label="generalDetails.Web_Site__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.Web_Team__c.value"
-                :label="generalDetails.Web_Team__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.Subject__c.value"
-                :label="generalDetails.Subject__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.Note__c.value"
-                :label="generalDetails.Note__c.label"
+                v-for="(detail, index) of Object.values(generalDetails).slice(0, 6)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
                 disabled
                 filled
               ></sl-input>
             </div>
-
             <div class="col-5">
               <sl-input
-                v-model="generalDetails.Date_Time_Opened__c.value"
-                :label="generalDetails.Date_Time_Opened__c.label"
+                v-for="(detail, index) of Object.values(generalDetails).slice(6, 12)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
                 disabled
                 filled
               ></sl-input>
-              <sl-input
-                v-model="generalDetails.Date_Time_Closed__c.value"
-                :label="generalDetails.Date_Time_Closed__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.Contact__c.value"
-                :label="generalDetails.Contact__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.Contact_Key__c.value"
-                :label="generalDetails.Contact_Key__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="generalDetails.CaseInternalLook__c.value"
-                :label="generalDetails.CaseInternalLook__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input v-model="owner" disabled filled label="Owner"></sl-input>
-              <sl-input v-model="queue" disabled filled label="Queue"></sl-input>
             </div>
           </div>
         </sl-details>
@@ -375,46 +316,20 @@ const handleSubmitFile = async () => {
           <div class="row">
             <div class="col-5">
               <sl-input
-                v-model="caseDetails.Name.value"
-                :label="caseDetails.Name.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="caseDetails.Origin__c.value"
-                :label="caseDetails.Origin__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="caseDetails.Application__c.value"
-                :label="caseDetails.Application__c.label"
+                v-for="(detail, index) of Object.values(caseDetails).slice(0, 4)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
                 disabled
                 filled
               ></sl-input>
             </div>
             <div class="col-5">
               <sl-input
-                v-model="caseDetails.Sector__c.value"
-                :label="caseDetails.Sector__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="caseDetails.Type__c.value"
-                :label="caseDetails.Type__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="caseDetails.Category__c.value"
-                :label="caseDetails.Category__c.label"
-                disabled
-                filled
-              ></sl-input>
-              <sl-input
-                v-model="caseDetails.Reason__c.value"
-                :label="caseDetails.Reason__c.label"
+                v-for="(detail, index) of Object.values(caseDetails).slice(4)"
+                :key="index"
+                :label="detail.label"
+                :value="detail.value"
                 disabled
                 filled
               ></sl-input>
