@@ -72,6 +72,7 @@ type DetailsInfo = {
 type Comment = {
   Status__c: string
   Comments__c: string
+  CreatedDate: string
 }
 
 const { ticketId } = defineProps<TicketDetailsProps>()
@@ -277,6 +278,12 @@ const handleSubmitFile = async () => {
         inputFiles.value.value = null
       })
       .catch(console.error)
+
+    await axios
+      .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: fileQuery.value.trim() } })
+      .then((res) => res.data.records)
+      .then((res) => (filesUploaded.value = res[0].CombinedAttachments.records))
+      .catch(console.error)
   }
 }
 </script>
@@ -451,7 +458,7 @@ const handleSubmitFile = async () => {
                     </div>
                     <div class="dialog">
                       <span>Stato:</span>
-                      <span>{{ comment.Status__c }}</span>
+                      <span>{{ new Date(comment.CreatedDate).toDateString() }}</span>
                     </div>
                   </div>
                 </template>
@@ -461,17 +468,18 @@ const handleSubmitFile = async () => {
           </div>
 
           <Transition>
-            <sl-dialog
-              ref="fileDialog"
-              style="--width: 15vw"
-              :label="`File (${filesUploaded.length})`"
-            >
+            <sl-dialog ref="fileDialog" :label="`File (${filesUploaded.length})`">
               <template v-if="filesUploaded.length > 0">
                 <div v-for="(file, index) of filesUploaded" class="dialog-container" :key="index">
                   <div class="dialog">
                     <!-- {{ `https://covisian6.my.salesforce.com${file.attributes.url}` }} -->
                     <span>
                       {{ file.Title }}
+                    </span>
+                  </div>
+                  <div class="dialog">
+                    <span>
+                      {{ new Date(file.CreatedDate).toDateString() }}
                     </span>
                   </div>
                 </div>
