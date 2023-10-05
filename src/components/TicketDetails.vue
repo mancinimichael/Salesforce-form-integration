@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT, SALESFORCE_ENDPOINT } from '@/constants'
+import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import TheToast from './TheToast.vue'
 
 type TicketDetailsProps = {
   ticketId: string
@@ -135,6 +136,8 @@ const queue = ref<any>()
 
 const filesUploaded = ref<any>([])
 const fileDialog = ref<any>()
+
+const toast = ref<InstanceType<typeof TheToast>>()
 
 const queryOwner = computed(
   () => `
@@ -276,6 +279,7 @@ const handleSubmitFile = async () => {
       .then(() => {
         files.value = null
         inputFiles.value.value = null
+        toast.value?.show('File allegato con successo.', 'success')
       })
       .catch(console.error)
 
@@ -283,7 +287,7 @@ const handleSubmitFile = async () => {
       .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: fileQuery.value.trim() } })
       .then((res) => res.data.records)
       .then((res) => (filesUploaded.value = res[0].CombinedAttachments.records))
-      .catch(console.error)
+      .catch(() => toast.value?.show('Impossibile allegare il file.', 'danger'))
   }
 }
 </script>
@@ -486,6 +490,10 @@ const handleSubmitFile = async () => {
               </template>
               <span v-else>Nessun file.</span>
             </sl-dialog>
+          </Transition>
+
+          <Transition>
+            <the-toast ref="toast"></the-toast>
           </Transition>
         </sl-details>
       </div>
