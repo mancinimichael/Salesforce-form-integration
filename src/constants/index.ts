@@ -1,6 +1,6 @@
 import type { FormItems } from '@/types'
 
-const SALESFORCE_ENDPOINT = import.meta.env.VITE_SALESFORCE_ENDPOINT
+export const SALESFORCE_ENDPOINT = import.meta.env.VITE_SALESFORCE_ENDPOINT
 
 export const SALESFORCE_CLIENT_ID = import.meta.env.VITE_SALESFORCE_CLIENT_ID
 

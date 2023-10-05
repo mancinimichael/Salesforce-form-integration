@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
+import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT, SALESFORCE_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
@@ -24,9 +24,7 @@ type General = {
   Note__c: DetailsInfo
   Date_Time_Opened__c: DetailsInfo
   Date_Time_Closed__c: DetailsInfo
-  // Contact__c: DetailsInfo
   Contact_Key__c: DetailsInfo
-  // CaseInternalLook__c: DetailsInfo
   SuppliedName__c: DetailsInfo
   SuppliedPhone__c: DetailsInfo
   WebEmail__c: DetailsInfo
@@ -88,8 +86,6 @@ const caseDetails = ref<Case>({
   Type__c: { label: '', value: '' }
 })
 const generalDetails = ref<General>({
-  // CaseInternalLook__c: { label: '', value: '' },
-  // Contact__c: { label: '', value: '' },
   Contact_Key__c: { label: '', value: '' },
   Date_Time_Closed__c: { label: '', value: '' },
   Date_Time_Opened__c: { label: '', value: '' },
@@ -116,6 +112,14 @@ const query = ref<string>(`
   WHERE CaseInternalName__c = '${ticketId}'
 `)
 
+const fileQuery = ref<string>(`
+  SELECT Id, Name, 
+  (SELECT Id, Title, FileType, CreatedDate, ParentId, ContentUrl, ExternalDataSourceName, ExternalDataSourceType FROM CombinedAttachments), 
+  (SELECT Id FROM Attachments) 
+  FROM CaseInternal__c
+  WHERE Id = '${ticketId}'
+`)
+
 const dialog = ref<any>()
 
 const caseDialog = ref<any>()
@@ -127,6 +131,8 @@ const statusDialog = ref<any>()
 const ownerId = ref<string>('')
 const owner = ref<any>()
 const queue = ref<any>()
+
+const filesUploaded = ref<any>([])
 
 const queryOwner = computed(
   () => `
@@ -164,11 +170,6 @@ onMounted(async () => {
       caseDetails.value.Sector__c = { label: 'Sector', value: res.Sector__c ?? '-' }
       caseDetails.value.Type__c = { label: 'Type', value: res.Type__c ?? '-' }
 
-      // generalDetails.value.CaseInternalLook__c = {
-      //   label: 'Case Internal Look',
-      //   value: res.CaseInternalLook__c ?? '-'
-      // }
-      // generalDetails.value.Contact__c = { label: 'Contact', value: res.Contact__c ?? '-' }
       generalDetails.value.Contact_Key__c = {
         label: 'Contact Key',
         value: res.Contact_Key__c ?? '-'
@@ -222,6 +223,12 @@ onMounted(async () => {
     .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: queryQueue.value.trim() } })
     .then((res) => res.data.records)
     .then((res) => (queue.value = res[0].Name ?? '-'))
+    .catch(console.error)
+
+  await axios
+    .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: fileQuery.value.trim() } })
+    .then((res) => res.data.records)
+    .then((res) => (filesUploaded.value = res[0].CombinedAttachments.records))
     .catch(console.error)
 })
 
@@ -392,15 +399,20 @@ const handleSubmitFile = async () => {
               type="file"
               @change="files = ($event.target as HTMLInputElement).files"
             />
-            <sl-button
-              size="small"
-              type="submit"
-              variant="success"
-              :disabled="files?.length === 0 || !files"
-              @click="handleSubmitFile"
-            >
-              Allega
-            </sl-button>
+            <div>
+              <sl-button
+                size="small"
+                type="submit"
+                variant="success"
+                :disabled="files?.length === 0 || !files"
+                @click="handleSubmitFile"
+              >
+                Allega
+              </sl-button>
+              <sl-button size="small" variant="default" @click="dialog.show()">
+                Visualizza tutti i file
+              </sl-button>
+            </div>
           </div>
 
           <sl-textarea
@@ -446,6 +458,22 @@ const handleSubmitFile = async () => {
               </sl-dialog>
             </Transition>
           </div>
+
+          <Transition>
+            <sl-dialog ref="dialog" style="--width: 15vw" :label="`File (${filesUploaded.length})`">
+              <template v-if="filesUploaded.length > 0">
+                <div v-for="(file, index) of filesUploaded" class="dialog-container" :key="index">
+                  <div class="dialog">
+                    <!-- {{ `https://covisian6.my.salesforce.com${file.attributes.url}` }} -->
+                    <span>
+                      {{ file.Title }}
+                    </span>
+                  </div>
+                </div>
+              </template>
+              <span v-else>Nessun file.</span>
+            </sl-dialog>
+          </Transition>
         </sl-details>
       </div>
     </div>
