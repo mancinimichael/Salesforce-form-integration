@@ -133,6 +133,7 @@ const owner = ref<any>()
 const queue = ref<any>()
 
 const filesUploaded = ref<any>([])
+const fileDialog = ref<any>()
 
 const queryOwner = computed(
   () => `
@@ -409,7 +410,7 @@ const handleSubmitFile = async () => {
               >
                 Allega
               </sl-button>
-              <sl-button size="small" variant="default" @click="dialog.show()">
+              <sl-button size="small" variant="default" @click="fileDialog.show()">
                 Visualizza tutti i file
               </sl-button>
             </div>
@@ -460,7 +461,11 @@ const handleSubmitFile = async () => {
           </div>
 
           <Transition>
-            <sl-dialog ref="dialog" style="--width: 15vw" :label="`File (${filesUploaded.length})`">
+            <sl-dialog
+              ref="fileDialog"
+              style="--width: 15vw"
+              :label="`File (${filesUploaded.length})`"
+            >
               <template v-if="filesUploaded.length > 0">
                 <div v-for="(file, index) of filesUploaded" class="dialog-container" :key="index">
                   <div class="dialog">
