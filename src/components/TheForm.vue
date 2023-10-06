@@ -4,6 +4,7 @@ import TheToast from '@/components/TheToast.vue'
 import {
   APPLICATION_ENDPOINT,
   CASE_ENDPOINT,
+  CATEGORY_DESC_ENDPOINT,
   CATEGORY_ENDPOINT,
   FORM_ITEMS,
   SECTOR_ENDPOINT,
@@ -35,6 +36,7 @@ const handleSubmit = async () => {
     Category__c: elements.value
       .find((element) => element.id === 'category')
       ?.options?.find((option) => option.id === parseInt(form.category))?.value,
+    Category_Description__c: store.form.categoryDescription,
     Description: form.description,
     Origin: 'Smart',
     Priority: elements.value
@@ -52,7 +54,8 @@ const handleSubmit = async () => {
     SuppliedName: store.auth.user.contact,
     SuppliedPhone: store.auth.user.phone,
     Web_Team__c: store.auth.user.team,
-    Web_Site__c: store.auth.user.site
+    Web_Site__c: store.auth.user.site,
+    Function__c: store.auth.user.function
   }
 
   const id = await axios
@@ -78,10 +81,11 @@ watchEffect(async () => {
     axios.get<ApiResponse>(APPLICATION_ENDPOINT, { headers: store.auth.headers }),
     axios.get<ApiResponse>(CATEGORY_ENDPOINT, { headers: store.auth.headers }),
     axios.get<ApiResponse>(SECTOR_ENDPOINT, { headers: store.auth.headers }),
-    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: store.auth.headers })
+    axios.get<ApiResponse>(TIPOLOGY_ENDPOINT, { headers: store.auth.headers }),
+    axios.get<ApiResponse>(CATEGORY_DESC_ENDPOINT, { headers: store.auth.headers })
   ])
     .then<Values[]>((res) => res.map((r) => r.data.values))
-    .then(([applications, categories, sectors, tipologies]) => {
+    .then(([applications, categories, sectors, tipologies, descriptions]) => {
       if (elements.value.find((element) => element.id === 'application')?.options?.length === 0) {
         applications.forEach((application, index) => {
           elements.value
@@ -121,6 +125,21 @@ watchEffect(async () => {
             })
         })
       }
+
+      if (
+        elements.value.find((element) => element.id === 'categoryDescription')?.options?.length ===
+        0
+      ) {
+        descriptions.forEach((description, index) => {
+          elements.value
+            .find((element) => element.id === 'categoryDescription')
+            ?.options?.push({
+              id: index,
+              value: description.value,
+              sectorId: `${description.validFor[0]}`
+            })
+        })
+      }
     })
     .catch(console.error)
 })
@@ -131,7 +150,7 @@ watchEffect(async () => {
     <form @submit.prevent="handleSubmit">
       <div class="row">
         <div class="col-2">
-          <div v-for="element of sortedElements.slice(2, 7)" :key="element.id">
+          <div v-for="element of sortedElements.slice(2)" :key="element.id">
             <FormItem :item="element" />
           </div>
         </div>

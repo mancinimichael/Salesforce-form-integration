@@ -39,12 +39,22 @@ const filter = (item: FormItem, option: Option) => {
     ></sl-input>
 
     <sl-textarea
-      v-else-if="item.selector === 'textarea'"
+      v-else-if="item.selector === 'textarea' && item.id !== 'categoryDescription'"
       v-model="store.form[item.id]"
       resize="auto"
       rows="15"
       :label="item.label"
       :type="item.type"
+    ></sl-textarea>
+
+    <sl-textarea
+      v-else-if="item.selector === 'textarea' && item.id === 'categoryDescription'"
+      resize="auto"
+      rows="3"
+      disabled
+      :label="item.label"
+      :type="item.type"
+      :value="item.options?.find((option) => option.sectorId === store.form.category)?.value"
     ></sl-textarea>
 
     <sl-select

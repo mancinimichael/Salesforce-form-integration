@@ -1,6 +1,7 @@
 export type Form = {
   application: string
   category: string
+  categoryDescription: string
   description: string
   priority: string
   sector: string

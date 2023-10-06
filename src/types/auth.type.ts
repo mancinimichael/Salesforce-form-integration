@@ -10,6 +10,7 @@ type DefaultHeaders = {
 type User = {
   contact: string
   email: string
+  function: string
   id: string
   phone: string
   site: string

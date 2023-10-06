@@ -26,6 +26,8 @@ export const CASE_INTERNAL_ENDPOINT = `${SALESFORCE_ENDPOINT}/data/v58.0/sobject
 
 export const CATEGORY_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Category__c`
 
+export const CATEGORY_DESC_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Category_Description__c`
+
 export const SECTOR_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Sector__c`
 
 export const TIPOLOGY_ENDPOINT = `${SALESFORCE_API_ENDPOINT}/Tipology__c`
@@ -76,10 +78,17 @@ export const FORM_ITEMS: FormItems = [
     options: []
   },
   {
+    id: 'categoryDescription',
+    label: 'Descrizione',
+    selector: 'textarea',
+    order: 6,
+    options: []
+  },
+  {
     id: 'priority',
     label: 'Priorità',
     selector: 'option',
-    order: 6,
+    order: 7,
     options: [
       { id: 0, value: 'Low' },
       { id: 1, value: 'Medium' },
