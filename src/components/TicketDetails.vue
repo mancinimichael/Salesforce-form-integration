@@ -22,7 +22,7 @@ type Case = {
 
 type General = {
   Subject__c: DetailsInfo
-  Note__c: DetailsInfo
+  Description__c: DetailsInfo
   Date_Time_Opened__c: DetailsInfo
   Date_Time_Closed__c: DetailsInfo
   Contact_Key__c: DetailsInfo
@@ -40,7 +40,7 @@ type Status = {
 
 type Details = {
   Subject__c: string
-  Note__c: string
+  Description__c: string
   Date_Time_Opened__c: string
   Date_Time_Closed__c: string
   Contact__c: string
@@ -91,7 +91,7 @@ const generalDetails = ref<General>({
   Contact_Key__c: { label: '', value: '' },
   Date_Time_Closed__c: { label: '', value: '' },
   Date_Time_Opened__c: { label: '', value: '' },
-  Note__c: { label: '', value: '' },
+  Description__c: { label: '', value: '' },
   Subject__c: { label: '', value: '' },
   SuppliedName__c: { label: '', value: '' },
   SuppliedPhone__c: { label: '', value: '' },
@@ -187,7 +187,7 @@ onMounted(async () => {
         label: 'Date / Time Opened',
         value: new Date(res.Date_Time_Opened__c).toDateString()
       }
-      generalDetails.value.Note__c = { label: 'Note', value: res.Note__c ?? '-' }
+      generalDetails.value.Description__c = { label: 'Note', value: res.Description__c ?? '-' }
       generalDetails.value.Subject__c = { label: 'Subject', value: res.Subject__c ?? '-' }
       generalDetails.value.SuppliedName__c = {
         label: 'Web Name',
