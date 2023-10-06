@@ -55,7 +55,8 @@ const handleSubmit = async () => {
     SuppliedPhone: store.auth.user.phone,
     Web_Team__c: store.auth.user.team,
     Web_Site__c: store.auth.user.site,
-    Function__c: store.auth.user.function
+    Function__c: store.auth.user.function,
+    Web_Function__c: store.auth.user.function
   }
 
   const id = await axios
@@ -160,23 +161,25 @@ watchEffect(async () => {
             <FormItem :item="element" />
           </div>
 
-          <sl-button-group>
+          <div class="btn-group">
             <sl-button
+              size="small"
               type="submit"
-              variant="success"
+              variant="neutral"
               :disabled="!Object.values(form).every((value) => !!value)"
             >
               Invia
             </sl-button>
             <sl-button
+              size="small"
               type="reset"
-              variant="danger"
+              variant="primary"
               :disabled="Object.values(form).every((value) => !value)"
               @click="Object.keys(form).forEach((key) => store.updateForm(key as FormKey, ''))"
             >
               Reset
             </sl-button>
-          </sl-button-group>
+          </div>
         </div>
       </div>
     </form>
@@ -184,3 +187,10 @@ watchEffect(async () => {
     <the-toast ref="toast"></the-toast>
   </div>
 </template>
+
+<style scoped>
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+</style>
