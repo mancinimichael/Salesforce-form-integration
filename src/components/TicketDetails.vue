@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
+import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT, SALESFORCE_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
@@ -115,11 +115,9 @@ const query = ref<string>(`
 `)
 
 const fileQuery = ref<string>(`
-  SELECT Id, Name, 
-  (SELECT Id, Title, FileType, CreatedDate, ParentId, ContentUrl, ExternalDataSourceName, ExternalDataSourceType FROM CombinedAttachments), 
-  (SELECT Id FROM Attachments) 
-  FROM CaseInternal__c
-  WHERE Id = '${ticketId}'
+  SELECT Id, Title, FirstPublishLocationId, ContentModifiedDate, PathOnClient
+  FROM ContentVersion
+  WHERE FirstPublishLocationId = '${ticketId}'
 `)
 
 const dialog = ref<any>()
@@ -233,9 +231,28 @@ onMounted(async () => {
   await axios
     .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: fileQuery.value.trim() } })
     .then((res) => res.data.records)
-    .then((res) => (filesUploaded.value = res[0].CombinedAttachments.records))
+    .then((res) => (filesUploaded.value = res))
     .catch(console.error)
 })
+
+const handleDownload = async (url: string, filename: string) => {
+  await axios
+    .get(`https://covisian6.my.salesforce.com${url}/VersionData`, {
+      headers: store.auth.headers,
+      responseType: 'blob'
+    })
+    .then((res) => {
+      const href = URL.createObjectURL(res.data)
+      const link = document.createElement('a')
+      link.href = href
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(href)
+    })
+    .catch(console.error)
+}
 
 const handleSubmit = async () => {
   await axios
@@ -268,11 +285,13 @@ const handleSubmitFile = async () => {
     const encodedFile = (reader.result as string).split(',')[1]
     await axios
       .post(
-        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/Attachment',
+        'https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/ContentVersion',
         {
-          ParentId: route.params.id,
-          Name: files.value?.item(0)?.name,
-          Body: encodedFile
+          FirstPublishLocationId: route.params.id,
+          Title: files.value?.item(0)?.name,
+          Description: files.value?.item(0)?.name,
+          VersionData: encodedFile,
+          PathOnClient: files.value?.item(0)?.name
         },
         { headers: store.auth.headers }
       )
@@ -286,7 +305,7 @@ const handleSubmitFile = async () => {
     await axios
       .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: fileQuery.value.trim() } })
       .then((res) => res.data.records)
-      .then((res) => (filesUploaded.value = res[0].CombinedAttachments.records))
+      .then((res) => (filesUploaded.value = res))
       .catch(() => toast.value?.show('Impossibile allegare il file.', 'danger'))
   }
 }
@@ -475,15 +494,14 @@ const handleSubmitFile = async () => {
             <sl-dialog ref="fileDialog" :label="`File (${filesUploaded.length})`">
               <template v-if="filesUploaded.length > 0">
                 <div v-for="(file, index) of filesUploaded" class="dialog-container" :key="index">
-                  <div class="dialog">
-                    <!-- {{ `https://covisian6.my.salesforce.com${file.attributes.url}` }} -->
-                    <span>
+                  <div class="dialog download">
+                    <span @click="handleDownload(file.attributes.url, file.Title)">
                       {{ file.Title }}
                     </span>
                   </div>
                   <div class="dialog">
                     <span>
-                      {{ new Date(file.CreatedDate).toDateString() }}
+                      {{ new Date(file.ContentModifiedDate).toDateString() }}
                     </span>
                   </div>
                 </div>
@@ -528,6 +546,10 @@ sl-textarea {
 .dialog-container .dialog {
   display: flex;
   flex-direction: column;
+}
+
+.dialog-container .dialog.download:hover {
+  cursor: pointer;
 }
 
 .dialog-container .dialog span:first-child {
