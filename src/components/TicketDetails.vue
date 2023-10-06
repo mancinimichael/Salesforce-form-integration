@@ -115,9 +115,9 @@ const query = ref<string>(`
 `)
 
 const fileQuery = ref<string>(`
-  SELECT Id, Title, FirstPublishLocationId, ContentModifiedDate, PathOnClient
-  FROM ContentVersion
-  WHERE FirstPublishLocationId = '${ticketId}'
+  SELECT Id, ContentDocument.title, ContentDocument.Id, ContentDocument.CreatedDate, ContentDocument.FileExtension
+  FROM ContentDocumentLink
+  WHERE ContentDocument.IsDeleted = false AND LinkedEntityId = '${ticketId}'
 `)
 
 const dialog = ref<any>()
@@ -219,7 +219,7 @@ onMounted(async () => {
   await axios
     .get(QUERY_ENDPOINT, { headers: store.auth.headers, params: { q: queryOwner.value.trim() } })
     .then((res) => res.data.records)
-    .then((res) => (owner.value = res[0].Name ?? '-'))
+    .then((res) => (owner.value = res[0]?.Name ?? '-'))
     .catch(console.error)
 
   await axios
@@ -235,12 +235,43 @@ onMounted(async () => {
     .catch(console.error)
 })
 
-const handleDownload = async (url: string, filename: string) => {
-  await axios
-    .get(`https://covisian6.my.salesforce.com${url}/VersionData`, {
+const handleDownload = async (id: string, filename: string) => {
+  // await axios
+  //   .get(`https://covisian6.my.salesforce.com${url}/VersionData`, {
+  //     headers: store.auth.headers,
+  //     responseType: 'blob'
+  //   })
+  //   .then((res) => {
+  //     const href = URL.createObjectURL(res.data)
+  //     const link = document.createElement('a')
+  //     link.href = href
+  //     link.setAttribute('download', filename)
+  //     document.body.appendChild(link)
+  //     link.click()
+  //     document.body.removeChild(link)
+  //     URL.revokeObjectURL(href)
+  //   })
+  //   .catch(console.error)
+
+  const fileId = await axios
+    .get(`${QUERY_ENDPOINT}`, {
       headers: store.auth.headers,
-      responseType: 'blob'
+      params: {
+        q: `SELECT Id FROM ContentVersion WHERE ContentDocument.Id = '${id}'`
+      }
     })
+    .then((res) => res.data)
+    .then((res) => res.records[0].Id)
+    .catch(console.error)
+
+  await axios
+    .get(
+      `https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/ContentVersion/${fileId}/`,
+      {
+        headers: store.auth.headers,
+        responseType: 'blob'
+      }
+    )
     .then((res) => {
       const href = URL.createObjectURL(res.data)
       const link = document.createElement('a')
@@ -495,13 +526,15 @@ const handleSubmitFile = async () => {
               <template v-if="filesUploaded.length > 0">
                 <div v-for="(file, index) of filesUploaded" class="dialog-container" :key="index">
                   <div class="dialog download">
-                    <span @click="handleDownload(file.attributes.url, file.Title)">
-                      {{ file.Title }}
+                    <span
+                      @click="handleDownload(file.ContentDocument.Id, file.ContentDocument.Title)"
+                    >
+                      {{ file.ContentDocument.Title }}
                     </span>
                   </div>
                   <div class="dialog">
                     <span>
-                      {{ new Date(file.ContentModifiedDate).toDateString() }}
+                      {{ new Date(file.ContentDocument.CreatedDate).toDateString() }}
                     </span>
                   </div>
                 </div>
