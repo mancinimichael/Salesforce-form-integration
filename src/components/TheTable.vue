@@ -3,7 +3,8 @@ import { QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import type { QueryResponse } from '@/types'
 import axios from 'axios'
-import { html, Grid } from "gridjs"
+// @ts-ignore
+import { Grid, html } from "gridjs"
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -102,7 +103,7 @@ onMounted(async () => {
         },
         search: true,
         sort: true
-    }).render(table.value)})
+    }).render(table.value as Element)})
     .catch(console.error)
 })</script>
 
