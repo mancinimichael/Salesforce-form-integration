@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT, SALESFORCE_ENDPOINT } from '@/constants'
+import TheToast from '@/components/TheToast.vue'
+import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import TheToast from './TheToast.vue'
 
 type TicketDetailsProps = {
   ticketId: string
@@ -236,23 +236,6 @@ onMounted(async () => {
 })
 
 const handleDownload = async (id: string, filename: string) => {
-  // await axios
-  //   .get(`https://covisian6.my.salesforce.com${url}/VersionData`, {
-  //     headers: store.auth.headers,
-  //     responseType: 'blob'
-  //   })
-  //   .then((res) => {
-  //     const href = URL.createObjectURL(res.data)
-  //     const link = document.createElement('a')
-  //     link.href = href
-  //     link.setAttribute('download', filename)
-  //     document.body.appendChild(link)
-  //     link.click()
-  //     document.body.removeChild(link)
-  //     URL.revokeObjectURL(href)
-  //   })
-  //   .catch(console.error)
-
   const fileId = await axios
     .get(`${QUERY_ENDPOINT}`, {
       headers: store.auth.headers,
@@ -264,25 +247,32 @@ const handleDownload = async (id: string, filename: string) => {
     .then((res) => res.records[0].Id)
     .catch(console.error)
 
-  await axios
+  const versionData = await axios
     .get(
       `https://covisian6.my.salesforce.com/services/data/v58.0/sobjects/ContentVersion/${fileId}/`,
       {
-        headers: store.auth.headers,
-        responseType: 'blob'
+        headers: store.auth.headers
       }
     )
-    .then((res) => {
-      const href = URL.createObjectURL(res.data)
-      const link = document.createElement('a')
-      link.href = href
-      link.setAttribute('download', filename)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(href)
-    })
+    .then((res) => res.data.VersionData)
     .catch(console.error)
+
+    await axios
+      .get(`https://covisian6.my.salesforce.com${versionData}`, {
+        headers: store.auth.headers,
+        responseType: 'blob'
+      })
+      .then((res) => {
+        const href = URL.createObjectURL(res.data)
+        const link = document.createElement('a')
+        link.href = href
+        link.setAttribute('download', filename)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(href)
+      })
+      .catch(console.error)
 }
 
 const handleSubmit = async () => {
@@ -534,7 +524,7 @@ const handleSubmitFile = async () => {
                   </div>
                   <div class="dialog">
                     <span>
-                      {{ new Date(file.ContentDocument.CreatedDate).toDateString() }}
+                      {{ new Date(file.ContentDocument.CreatedDate).toLocaleString() }}
                     </span>
                   </div>
                 </div>
