@@ -2,21 +2,24 @@
 import { useRouter } from 'vue-router'
 
 type TheHeaderProps = {
-  button: string
   title: string
-  navigate?: string
 }
 
-const { button, navigate, title } = defineProps<TheHeaderProps>()
+const { title } = defineProps<TheHeaderProps>()
 const router = useRouter()
 </script>
 
 <template>
   <header class="header">
     <h1>{{ title }}</h1>
-    <sl-button size="small" variant="primary" @click="router.push({ name: navigate ?? 'home' })">
-      {{ button }}
-    </sl-button>
+    <div class="btn-group">
+      <sl-button size="small" variant="primary" @click="router.push({ name: 'home' })">
+        Crea ticket
+      </sl-button>
+      <sl-button size="small" variant="primary" @click="router.push({ name: 'tickets' })">
+        Visualizza tickets
+      </sl-button>
+    </div>
   </header>
 </template>
 
@@ -32,5 +35,10 @@ const router = useRouter()
 
 .header h1 {
   font-size: var(--sl-spacing-medium);
+}
+
+.header .btn-group {
+  display: flex;
+  gap: 8px;
 }
 </style>

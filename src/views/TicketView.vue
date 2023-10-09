@@ -7,10 +7,6 @@ const route = useRoute()
 </script>
 
 <template>
-  <the-header
-    :button="'Visualizza tutti'"
-    :navigate="'tickets'"
-    :title="`Ticket ${route.params.id}`"
-  ></the-header>
+  <the-header :title="`Ticket ${route.params.id}`"></the-header>
   <ticket-details :ticket-id="`${route.params.id}`"></ticket-details>
 </template>

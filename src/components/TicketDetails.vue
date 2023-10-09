@@ -179,11 +179,11 @@ onMounted(async () => {
       }
       generalDetails.value.Date_Time_Closed__c = {
         label: 'Date / Time Closed',
-        value: res.Date_Time_Closed__c ? new Date(res.Date_Time_Closed__c).toDateString() : '-'
+        value: res.Date_Time_Closed__c ? new Date(res.Date_Time_Closed__c).toLocaleString() : '-'
       }
       generalDetails.value.Date_Time_Opened__c = {
         label: 'Date / Time Opened',
-        value: new Date(res.Date_Time_Opened__c).toDateString()
+        value: new Date(res.Date_Time_Opened__c).toLocaleString()
       }
       generalDetails.value.Description__c = { label: 'Note', value: res.Description__c ?? '-' }
       generalDetails.value.Subject__c = { label: 'Subject', value: res.Subject__c ?? '-' }
@@ -257,22 +257,22 @@ const handleDownload = async (id: string, filename: string) => {
     .then((res) => res.data.VersionData)
     .catch(console.error)
 
-    await axios
-      .get(`https://covisian6.my.salesforce.com${versionData}`, {
-        headers: store.auth.headers,
-        responseType: 'blob'
-      })
-      .then((res) => {
-        const href = URL.createObjectURL(res.data)
-        const link = document.createElement('a')
-        link.href = href
-        link.setAttribute('download', filename)
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(href)
-      })
-      .catch(console.error)
+  await axios
+    .get(`https://covisian6.my.salesforce.com${versionData}`, {
+      headers: store.auth.headers,
+      responseType: 'blob'
+    })
+    .then((res) => {
+      const href = URL.createObjectURL(res.data)
+      const link = document.createElement('a')
+      link.href = href
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(href)
+    })
+    .catch(console.error)
 }
 
 const handleSubmit = async () => {
@@ -502,7 +502,7 @@ const handleSubmitFile = async () => {
                     </div>
                     <div class="dialog">
                       <span>Stato:</span>
-                      <span>{{ new Date(comment.CreatedDate).toDateString() }}</span>
+                      <span>{{ new Date(comment.CreatedDate).toLocaleString() }}</span>
                     </div>
                   </div>
                 </template>

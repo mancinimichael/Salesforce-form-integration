@@ -5,10 +5,6 @@ import { store } from '@/store'
 </script>
 
 <template>
-  <the-header
-    :button="'Visualizza ticket'"
-    :navigate="'tickets'"
-    :title="'Crea ticket'"
-  ></the-header>
+  <the-header :title="'Crea ticket'"></the-header>
   <the-form :form="store.form" />
 </template>

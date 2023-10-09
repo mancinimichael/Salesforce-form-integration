@@ -4,6 +4,6 @@ import TheTable from '@/components/TheTable.vue'
 </script>
 
 <template>
-  <the-header :button="'Crea ticket'" :title="'Visualizza ticket'"></the-header>
+  <the-header :title="'Visualizza ticket'"></the-header>
   <the-table></the-table>
 </template>
