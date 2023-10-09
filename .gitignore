@@ -28,4 +28,5 @@ coverage
 *.sw?
 
 # Environment variables
+.env
 .env.*

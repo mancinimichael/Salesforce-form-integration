@@ -12,3 +12,24 @@ type Value = {
 }
 
 export type Values = Value[]
+
+export type QueryResponse = {
+  totalSize: number
+  done: boolean
+  records: Tickets
+}
+
+export type Ticket = {
+  Id: string
+  Name: string
+  Subject__c: string
+  Date_Time_Opened__c: string
+  Status__c: string
+  Sector__c: string
+  attributes?: {
+    type: string
+    url: string
+  }
+}
+
+export type Tickets = Ticket[]
