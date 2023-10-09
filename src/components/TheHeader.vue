@@ -36,9 +36,4 @@ const router = useRouter()
 .header h1 {
   font-size: var(--sl-spacing-medium);
 }
-
-.header .btn-group {
-  display: flex;
-  gap: 8px;
-}
 </style>

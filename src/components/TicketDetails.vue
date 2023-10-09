@@ -451,7 +451,7 @@ const handleSubmitFile = async () => {
               type="file"
               @change="files = ($event.target as HTMLInputElement).files"
             />
-            <div>
+            <div class="btn-group">
               <sl-button
                 size="small"
                 type="submit"
