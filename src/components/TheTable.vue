@@ -4,14 +4,14 @@ import { store } from '@/store'
 import type { QueryResponse } from '@/types'
 import axios from 'axios'
 // @ts-ignore
-import { Grid, html } from "gridjs"
+import { Grid, html } from 'gridjs'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const fields = [
   {
-    property: "Id",
-    name: "Id",
+    property: 'Id',
+    name: 'Id',
     order: 0
   },
   {
@@ -43,7 +43,10 @@ const fields = [
 
 const table = ref<HTMLDivElement>()
 const query = ref(`
-  SELECT ${fields.sort((x, y) => x.order - y.order).map((field) => field.property).join(', ')}
+  SELECT ${fields
+    .sort((x, y) => x.order - y.order)
+    .map((field) => field.property)
+    .join(', ')}
   FROM CaseInternal__c
   WHERE Contact_Key__c = '${store.auth.user.id}'
   ORDER BY Date_Time_Opened__c DESC
@@ -51,6 +54,20 @@ const query = ref(`
 
 const router = useRouter()
 
+const getTag = (cell: any) => {
+  switch (cell) {
+    case 'Preso in carico':
+      return html(`<sl-tag variant="success">${cell}</sl-tag>`)
+    case 'Inoltrato altra coda':
+      return html(`<sl-tag variant="primary">${cell}</sl-tag>`)
+    case 'Sospeso':
+      return html(`<sl-tag variant="warning">${cell}</sl-tag>`)
+    case 'Errato':
+      return html(`<sl-tag variant="danger">${cell}</sl-tag>`)
+    default:
+      return html(`<sl-tag variant="neutral">${cell}</sl-tag>`)
+  }
+}
 onMounted(async () => {
   await axios
     .get<QueryResponse>(QUERY_ENDPOINT, {
@@ -59,41 +76,44 @@ onMounted(async () => {
         q: query.value.trim()
       }
     })
-    .then(res => {
+    .then((res) => {
       new Grid({
-        columns: fields.sort((x, y) => x.order - y.order).map(field => {
-          if(field.property === "Name") {
-            return {
-              name: field.name,
-              attributes: (cell: any, row: any) => {
-                if(cell) {
-                  return {
-                    'onclick': () => router.push({name: 'ticket', params: { id: row._cells[0].data }}),
-                    'style': 'cursor: pointer; text-decoration: underline'
+        columns: fields
+          .sort((x, y) => x.order - y.order)
+          .map((field) => {
+            if (field.property === 'Name') {
+              return {
+                name: field.name,
+                attributes: (cell: any, row: any) => {
+                  if (cell) {
+                    return {
+                      onclick: () =>
+                        router.push({ name: 'ticket', params: { id: row._cells[0].data } }),
+                      style: 'cursor: pointer; text-decoration: underline'
+                    }
                   }
-                }
-              },
-              formatter: (cell: any) => html(`<b>${cell}</b>`)
+                },
+                formatter: (cell: any) => html(`<b>${cell}</b>`)
+              }
             }
-          }
 
-          if(field.property === "Id") {
-            return {
-              name: field.name,
-              hidden: true
+            if (field.property === 'Id') {
+              return {
+                name: field.name,
+                hidden: true
+              }
             }
-          }
 
-          if(field.property === "Status__c") {
-            return {
-              name: field.name,
-              formatter: (cell: any) => html(`<sl-tag variant="neutral">${cell}</sl-tag>`) 
+            if (field.property === 'Status__c') {
+              return {
+                name: field.name,
+                formatter: getTag
+              }
             }
-          }
 
-          return field.name
-        }),
-        data: res.data.records.map(ticket => {
+            return field.name
+          }),
+        data: res.data.records.map((ticket) => {
           delete ticket.attributes
           ticket.Date_Time_Opened__c = new Date(ticket.Date_Time_Opened__c).toLocaleString()
           return Object.values(ticket)
@@ -103,9 +123,11 @@ onMounted(async () => {
         },
         search: true,
         sort: true
-    }).render(table.value as Element)})
+      }).render(table.value as Element)
+    })
     .catch(console.error)
-})</script>
+})
+</script>
 
 <template>
   <div class="table-wrapper" ref="table"></div>
