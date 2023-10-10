@@ -10,6 +10,8 @@ import {
 import { store } from '@/store'
 import type { OAuthResponse } from '@/types'
 import axios from 'axios'
+// @ts-ignore
+import { html } from 'gridjs'
 
 export const initApp = async () => {
   const formData = new FormData()
@@ -48,4 +50,19 @@ export const initSmart = async (event: any) => {
       store.auth.user.team = res.dipendenti[0].sede_operativa.team
     })
     .catch(console.error)
+}
+
+export const getTag = (cell: any) => {
+  switch (cell) {
+    case 'Preso in carico':
+      return html(`<sl-tag variant="success">${cell}</sl-tag>`)
+    case 'Inoltrato altra coda':
+      return html(`<sl-tag variant="primary">${cell}</sl-tag>`)
+    case 'Sospeso':
+      return html(`<sl-tag variant="warning">${cell}</sl-tag>`)
+    case 'Errato':
+      return html(`<sl-tag variant="danger">${cell}</sl-tag>`)
+    default:
+      return html(`<sl-tag variant="neutral">${cell}</sl-tag>`)
+  }
 }

@@ -2,6 +2,7 @@
 import TheToast from '@/components/TheToast.vue'
 import { CASE_INTERNAL_ENDPOINT, QUERY_ENDPOINT } from '@/constants'
 import { store } from '@/store'
+import { getTag } from '@/utils'
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -400,6 +401,10 @@ const handleSubmitFile = async () => {
           @sl-show="generalDialog.hide()"
           @sl-hide="generalDialog.show()"
         >
+          <div class="status">
+            <h5>Stato ticket:</h5>
+            <div v-html="getTag(statusDetails.Status__c.value).props.content"></div>
+          </div>
           <div class="row">
             <div class="col-5">
               <sl-input
@@ -551,6 +556,14 @@ sl-input {
 sl-details,
 sl-textarea {
   margin-bottom: var(--sl-spacing-x-small);
+}
+
+.status {
+  align-items: center;
+  display: flex;
+  justify-content: start;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .btn-container {
